@@ -1,6 +1,7 @@
 import type { Options } from 'ky'
 
 import { STORES_RESOURCE } from '@printful-ts/constants'
+import { bound, trace } from '@printful-ts/decorators'
 import {
   GetStoreResponse,
   GetStoreStatisticsResponse,
@@ -11,6 +12,8 @@ import {
 import { PrintfulApiService } from './printful-api.service'
 
 export class StoresService extends PrintfulApiService {
+  @bound
+  @trace
   async listStores(store_id?: number, options: Options = {}) {
     return await this.request(
       STORES_RESOURCE,
@@ -19,6 +22,8 @@ export class StoresService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getStore(store_id: number, options: Options = {}) {
     return await this.request(
       `${STORES_RESOURCE}/${store_id}`,
@@ -27,6 +32,8 @@ export class StoresService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getStoreStatistics(
     store_id: number,
     params: GetStoreStatisticsSearchParams,

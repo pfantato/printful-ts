@@ -1,6 +1,12 @@
 import { z } from 'zod'
 import ky, { type KyInstance, type Options } from 'ky'
 
+import {
+  AUTHORIZATION_HEADER,
+  LANGUAGE_HEADER,
+  STORE_ID_HEADER,
+} from '@printful-ts/constants'
+import { bound, trace } from '@printful-ts/decorators'
 import { PrintfulError, PrintfulErrorCode } from '@printful-ts/errors'
 import {
   Locale,
@@ -10,11 +16,6 @@ import {
   GetOAuthScopesResponse,
   StoreId,
 } from '@printful-ts/schemas'
-import {
-  AUTHORIZATION_HEADER,
-  LANGUAGE_HEADER,
-  STORE_ID_HEADER,
-} from '@printful-ts/constants'
 
 type RequestOptions = Options & {
   validateResponseSchema?: boolean
@@ -53,6 +54,8 @@ export abstract class PrintfulApiService {
     return `${this.baseUrl}/${this.version}`
   }
 
+  @bound
+  @trace
   protected async isAllowed(scopes: Array<OAuthScopeValue>) {
     const {
       success,
@@ -123,6 +126,8 @@ export abstract class PrintfulApiService {
     return ky.create(defaultOptions)
   }
 
+  @bound
+  @trace
   protected async request<T>(
     endpoint: string,
     requestOptions?: RequestOptions,

@@ -1,6 +1,7 @@
 import type { Options } from 'ky'
 
 import { ORDERS_RESOURCE } from '@printful-ts/constants'
+import { bound, trace } from '@printful-ts/decorators'
 import {
   ConfirmOrderResponse,
   CreateOrderBody,
@@ -27,6 +28,8 @@ import {
 } from '@printful-ts/schemas/endpoints/orders/list-order-shipments.schema'
 
 export class OrdersService extends PrintfulApiService {
+  @bound
+  @trace
   async listOrders(params: ListOrdersSearchParams = {}, options: Options = {}) {
     const { store_id, ...searchParams } = ListOrdersSearchParams.parse(params)
 
@@ -41,6 +44,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getOrder(
     order_id: ExternalIdParam,
     store_id?: StoreId,
@@ -56,6 +61,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async createOrder(body: CreateOrderBody, options: Options = {}) {
     const { store_id, ...json } = CreateOrderBody.parse(body)
 
@@ -71,6 +78,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async updateOrder(
     order_id: ExternalIdParam,
     body: CreateOrderBody,
@@ -90,6 +99,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async confirmOrder(
     order_id: ExternalIdParam,
     store_id?: StoreId,
@@ -106,6 +117,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async deleteOrder(
     order_id: ExternalIdParam,
     store_id?: StoreId,
@@ -119,6 +132,8 @@ export class OrdersService extends PrintfulApiService {
     })
   }
 
+  @bound
+  @trace
   async listOrderItems(
     order_id: ExternalIdParam,
     params: GetOrderItemsSearchParams,
@@ -138,6 +153,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getOrderItem(
     path_params: OrderItemPathParams,
     store_id: number,
@@ -155,6 +172,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async createOrderItem(
     order_id: ExternalIdParam,
     body: CreateOrderItemBody,
@@ -174,6 +193,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async updateOrderItem(
     path_params: OrderItemPathParams,
     body: CreateOrderItemBody,
@@ -194,6 +215,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async deleteOrderItem(
     path_params: OrderItemPathParams,
     store_id: number,
@@ -212,6 +235,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async listShipments(
     order_id: ExternalIdParam,
     params: ListOrderShipmentsSearchParams,
@@ -231,6 +256,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getInvoice(
     order_id: ExternalIdParam,
     store_id?: StoreId,
@@ -246,6 +273,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getOrderEstimationTask(
     task_id: string,
     store_id?: StoreId,
@@ -261,6 +290,8 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async createOrderEstimationTask(
     body: CreateOrderEstimationTaskBody,
     options: Options = {},

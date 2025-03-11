@@ -1,6 +1,7 @@
 import type { Options } from 'ky'
 
 import { SHIPPING_RATES_RESOURCE } from '@printful-ts/constants'
+import { bound, trace } from '@printful-ts/decorators'
 import {
   CalculateShippingRatesBody,
   CalculateShippingRatesResponse,
@@ -9,6 +10,8 @@ import {
 import { PrintfulApiService } from './printful-api.service'
 
 export class ShippingRateService extends PrintfulApiService {
+  @bound
+  @trace
   async calculateShippingRates(
     body: CalculateShippingRatesBody,
     options: Options = {},

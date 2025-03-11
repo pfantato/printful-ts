@@ -4,6 +4,7 @@ import {
   CATALOG_PRODUCTS_RESOURCE,
   CATALOG_VARIANTS_RESOURCE,
 } from '@printful-ts/constants'
+import { bound, trace } from '@printful-ts/decorators'
 import {
   GetCatalogCategoryResponse,
   GetProductBlankMockupsResponse,
@@ -38,6 +39,8 @@ import {
 import { PrintfulApiService } from './printful-api.service'
 
 export class CatalogProductsService extends PrintfulApiService {
+  @bound
+  @trace
   async listProducts(
     params: ListProductsSearchParams = {},
     options: Options = {},
@@ -55,6 +58,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getProduct(
     product_id: number,
     params: GetProductSearchParams,
@@ -73,6 +78,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async listProductVariants(
     product_id: number,
     locale?: Locale,
@@ -88,6 +95,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getProductVariant(
     variant_id: number,
     locale?: Locale,
@@ -103,6 +112,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async listProductCategories(
     product_id: number,
     params: ListProductCategoriesSearchParams,
@@ -120,6 +131,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async listCategories(options: Options = {}) {
     return await this.request(
       `${CATALOG_CATEGORY_RESOURCE}`,
@@ -128,6 +141,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getCategory(category_id: number, options: Options = {}) {
     return await this.request(
       `${CATALOG_CATEGORY_RESOURCE}/${category_id}`,
@@ -136,6 +151,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getProductSizeGuide(
     product_id: number,
     params: GetProductSizeGuideSearchParams = {},
@@ -155,6 +172,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async listProductPrices(
     product_id: number,
     params: ListProductPricesSearchParams = {},
@@ -174,6 +193,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async listProductVariantPrices(
     variant_id: number,
     params: ListProductVariantPricesSearchParams = {},
@@ -193,6 +214,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getProductBlankMockups(
     product_id: number,
     params: GetProductBlankMockupsSearchParams,
@@ -212,6 +235,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getProductVariantBlankMockups(
     variant_id: number,
     params: GetVarianttBlankMockupsSearchParams,
@@ -231,6 +256,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getProductMockups(
     product_id: number,
     params: GetProductMockupsSearchParams,
@@ -250,6 +277,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getProductMockupTemplates(
     product_id: number,
     params: GetProductMockupTemplatesSearchParams,
@@ -269,6 +298,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getProductStockAvailability(
     product_id: number,
     params: GetProductStockAvailabilitySearchParams = {},
@@ -288,6 +319,8 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getProductVariantStockAvailability(
     variant_id: number,
     params: GetVariantStockAvailabilitySearchParams = {},

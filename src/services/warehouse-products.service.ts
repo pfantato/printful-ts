@@ -1,6 +1,7 @@
 import type { Options } from 'ky'
 
 import { WAREHOUSE_PRODUCTS_SERVICE } from '@printful-ts/constants'
+import { bound, trace } from '@printful-ts/decorators'
 import {
   GetWarehouseProductResponse,
   ListWarehouseProductsResponse,
@@ -10,6 +11,8 @@ import {
 import { PrintfulApiService } from './printful-api.service'
 
 export class WarehouseProductsService extends PrintfulApiService {
+  @bound
+  @trace
   async listWarehouseProducts(
     params: ListWarehouseProductsSearchParams,
     options: Options = {},
@@ -24,6 +27,8 @@ export class WarehouseProductsService extends PrintfulApiService {
     )
   }
 
+  @bound
+  @trace
   async getWarehouseProduct(
     warehouse_product_id: number,
     store_id?: number,

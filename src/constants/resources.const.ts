@@ -1,0 +1,8 @@
+export const CATALOG_CATEGORY_RESOURCE = 'catalog-categories'
+export const CATALOG_VARIANTS_RESOURCE = 'catalog-variants'
+export const CATALOG_PRODUCTS_RESOURCE = 'catalog-products'
+export const ORDERS_RESOURCE = 'orders'
+export const SHIPPING_RATES_RESOURCE = 'shipping-rates'
+export const STORES_RESOURCE = 'stores'
+export const COUNTRIES_RESOURCE = 'countries'
+export const WAREHOUSE_PRODUCTS_SERVICE = 'warehouse-products'

@@ -24,15 +24,7 @@ jobs:
         with:
           name: node_modules
 
-      - name: 🧰 Cache Build Output
-        id: build-cache
-        uses: actions/cache@v4
-        with:
-          path: lib
-          key: build-${{ runner.os }}-${{ hashFiles('tsup.config.ts', 'src/**/*.ts') }}
-
       - name: ⚙️ Compile SDK
-        if: steps.build-cache.outputs.cache-hit != 'true'
         run: npm run build
 
       - name: 📦 Upload Compiled Artifacts

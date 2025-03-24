@@ -24,19 +24,12 @@ jobs:
       - name: 🧪 Run vitest tests with coverage
         run: npm run test:coverage
 
-      - name: ☁️ Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }} # Only required for private repos
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/clover.xml
-          flags: unittests
-          name: codecov-coverage
           fail_ci_if_error: true
-
-      - name: 📝 Add Codecov badge to README (if not exists)
-        run: |
-          BADGE="[![Codecov](https://codecov.io/gh/${{ github.repository }}/branch/main/graph/badge.svg)](https://codecov.io/gh/${{ github.repository }})"
-          grep -q "codecov.io" README.md || echo -e "\n<!-- Coverage Badge -->\n$BADGE" >> README.md
 
       - name: 🔧 Commit badge change
         uses: stefanzweifel/git-auto-commit-action@v5

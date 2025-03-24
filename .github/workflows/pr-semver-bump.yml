@@ -10,16 +10,17 @@ jobs:
   bump-version:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+
     steps:
       - name: 💾 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🧰 Setup Git User
+      - name: 🔧 Setup Git User
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      - name: 🏷️ Determine Bump Type From Labels
+      - name: 🏷️ Determine Version Bump Type from Labels
         id: version
         run: |
           labels=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -31,20 +32,33 @@ jobs:
           else
             echo "type=patch" >> $GITHUB_OUTPUT
 
-      - name: 🔧 Bump Version and Commit
+      - name: 🚀 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 🔹 Cache Dependencies
+        id: node-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: ♻️ Install Dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 🚀 Run standard-version
+        run: npx standard-version --release-as ${{ steps.version.outputs.type }} --skip.commit --skip.tag
+
+      - name: 💬 Commit and Push Bumped Version
         run: |
-          version_type=${{ steps.version.outputs.type }}
-          git fetch origin main
-          git checkout main
-          git pull
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          NEW_VERSION=$(npm version "$version_type" --no-git-tag-version)
-          git add package.json package-lock.json
-          git commit -m "chore(release): bump version $CURRENT_VERSION → $NEW_VERSION [skip ci]"
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "chore(release): bump version [skip ci]"
           git push
 
-      - name: 🔖 Tag and Push Release
+      - name: 🔖 Create and Push Tag
         run: |
-          TAG=v$(node -p "require('./package.json').version")
+          TAG="v$(node -p \"require('./package.json').version\")"
           git tag "$TAG"
           git push origin "$TAG"

@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 jobs:
-  install:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: 💾 Checkout Repository
@@ -28,11 +28,6 @@ jobs:
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
 
-
-  upload:
-    needs: install
-    runs-on: ubuntu-latest
-    steps:
       - name: 📁 Upload Node Modules
         uses: actions/upload-artifact@v4
         with:
@@ -41,11 +36,11 @@ jobs:
           retention-days: 5
 
   test:
-    needs: upload
+    needs: setup
     uses: ./.github/workflows/test-coverage.yml
 
   build:
-    needs: upload
+    needs: setup
     uses: ./.github/workflows/build.yml
 
   changelog:

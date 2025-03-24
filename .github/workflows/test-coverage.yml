@@ -8,7 +8,7 @@ on:
         value: './coverage'
 
 jobs:
-  run-tests:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - name: 💾 Checkout Repository
@@ -31,14 +31,12 @@ jobs:
         run: npm ci
 
       - name: 🧰 Cache Vitest Results
-        id: tests-cache
         uses: actions/cache@v4
         with:
           path: coverage
-          key: coverage-${{ runner.os }}-${{ hashFiles('**/*.ts') }}
+          key: vitest-${{ runner.os }}-${{ hashFiles('**/*.ts') }}
 
       - name: 🔬 Run Unit Tests with Coverage
-        if: steps.tests-cache.outputs.cache-hit != 'true'
         run: npm run test:coverage
 
       - name: 📊 Upload Coverage Reports
@@ -46,3 +44,12 @@ jobs:
         with:
           name: coverage
           path: ./coverage
+
+  uploads:
+    needs: tests
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/upload-codecov.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    with:
+      clover-path: ./coverage/clover.xml

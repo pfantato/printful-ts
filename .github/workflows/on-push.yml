@@ -4,19 +4,18 @@ on:
   push:
     branches:
       - '**'
+    paths-ignore:
+      - 'CHANGELOG.md'
+      - 'RELEASE_NOTES.md'
 
 jobs:
-  test:
-    uses: ./.github/workflows/test.yml
+  install:
+    uses: ./.github/workflows/npm-ci.yml
 
-  codecov:
-    needs: test
-    if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/upload-codecov.yml
-    with:
-      clover-path: ./coverage/clover.xml
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  test:
+    needs: install
+    uses: ./.github/workflows/test-coverage.yml
 
   build:
+    needs: install
     uses: ./.github/workflows/build.yml

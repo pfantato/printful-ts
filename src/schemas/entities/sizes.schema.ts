@@ -19,7 +19,7 @@ export type MeasurementValue = z.infer<typeof MeasurementValue>
 export const Measurement = z.object({
   type_label: z.string(),
   unit: Unit,
-  values: z.array(MeasurementValue),
+  values: MeasurementValue.array(),
 })
 export type Measurement = z.infer<typeof Measurement>
 
@@ -36,13 +36,13 @@ export const SizeTable = z.object({
   description: z.string(),
   image_url: z.string().url(),
   image_description: z.string(),
-  measurements: z.array(Measurement),
+  measurements: Measurement.array(),
 })
 export type SizeTable = z.infer<typeof SizeTable>
 
 export const ProductSizeGuide = z.object({
   catalog_product_id: z.number(),
-  available_sizes: z.array(z.string()),
-  size_tables: z.array(SizeTable),
+  available_sizes: z.string().array(),
+  size_tables: SizeTable.array(),
 })
 export type ProductSizeGuide = z.infer<typeof ProductSizeGuide>

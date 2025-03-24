@@ -10,16 +10,16 @@ import { OrderItem } from './order-item.schema'
 
 export const Order = z.object({
   id: z.number(),
-  external_id: z.string().nullable(),
+  external_id: z.string().optional(),
   store_id: z.number(),
-  shipping: z.string().default('STANDARD'),
+  shipping: z.string().default('STANDARD').optional(),
   status: OrderStatus,
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   recipient: Address,
   costs: Costs,
   retail_costs: RetailCosts,
-  order_items: z.array(OrderItem),
+  order_items: OrderItem.array().min(1),
   customization: Customization,
   _links: z.object({
     self: HateoasLink,

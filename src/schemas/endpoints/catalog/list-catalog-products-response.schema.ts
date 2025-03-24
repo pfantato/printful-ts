@@ -4,7 +4,7 @@ import { Paging, PagingHateoasLinks } from '@printful-ts/schemas/common'
 import { Product } from '@printful-ts/schemas/entities'
 
 export const ListCatalogProductsResponse = z.object({
-  data: z.array(Product),
+  data: Product.array(),
   paging: Paging,
   _links: PagingHateoasLinks,
 })

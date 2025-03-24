@@ -3,7 +3,20 @@ import { z } from 'zod'
 import { FilterSettings, HateoasLink } from '@printful-ts/schemas/common'
 import { VariantStockAvailability } from '@printful-ts/schemas/entities'
 
-import { GetProductStockAvailabilitySearchParams } from './get-product-stock-availability.schema'
+import {
+  GetProductStockAvailabilitySearchParams,
+  GetProductStockAvailabilitySearchInput,
+} from './get-product-stock-availability.schema'
+
+export const GetVariantStockAvailabilitySearchInput =
+  GetProductStockAvailabilitySearchInput.pick({
+    techniques: true,
+    selling_region_name: true,
+    locale: true,
+  })
+export type GetVariantStockAvailabilitySearchInput = z.input<
+  typeof GetVariantStockAvailabilitySearchInput
+>
 
 export const GetVariantStockAvailabilitySearchParams =
   GetProductStockAvailabilitySearchParams.pick({
@@ -11,7 +24,7 @@ export const GetVariantStockAvailabilitySearchParams =
     selling_region_name: true,
     locale: true,
   })
-export type GetVariantStockAvailabilitySearchParams = z.infer<
+export type GetVariantStockAvailabilitySearchParams = z.input<
   typeof GetVariantStockAvailabilitySearchParams
 >
 

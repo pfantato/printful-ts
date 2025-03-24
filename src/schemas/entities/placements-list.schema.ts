@@ -25,8 +25,10 @@ export const PlacementsList = DesignPlacement.pick({
   technique: true,
   layers: true,
   placement_options: true,
-}).extend({
-  status: PlacementStatus,
-  status_explanation: z.string(),
-})
+}).merge(
+  z.object({
+    status: PlacementStatus,
+    status_explanation: z.string(),
+  }),
+)
 export type PlacementsList = z.infer<typeof PlacementsList>

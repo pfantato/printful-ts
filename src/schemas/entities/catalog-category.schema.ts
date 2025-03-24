@@ -4,7 +4,7 @@ import { HateoasLink } from '@printful-ts/schemas/common'
 
 export const CatalogCategory = z.object({
   id: z.number(),
-  parent_id: z.number().nullable(),
+  parent_id: z.number().optional(),
   image_url: z.string().url(),
   title: z.string(),
   _links: z.object({

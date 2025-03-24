@@ -39,7 +39,7 @@ export type SalesAndCostsSummaryValue = z.infer<
 
 export const RelativeCosts = z.object({
   value: z.string(),
-  relative_difference: z.string().nullable(),
+  relative_difference: z.string().optional(),
 })
 export type RelativeCosts = z.infer<typeof RelativeCosts>
 
@@ -66,23 +66,25 @@ export const CostsByProductValue = z.object({
 export type CostsByProductValue = z.infer<typeof CostsByProductValue>
 export const CostsByVariantValue = CostsByProductValue.omit({
   product_name: true,
-}).extend({
-  variant_id: z.number(),
-  variant_name: z.string(),
-})
+}).merge(
+  z.object({
+    variant_id: z.number(),
+    variant_name: z.string(),
+  }),
+)
 export type CostsByVariantValue = z.infer<typeof CostsByVariantValue>
 
 export const StoreStatistics = z.object({
   store_id: z.number(),
   currency: Currency,
-  sales_and_costs: z.array(SalesAndCostsValue),
-  sales_and_costs_summary: z.array(SalesAndCostsSummaryValue),
+  sales_and_costs: SalesAndCostsValue.array(),
+  sales_and_costs_summary: SalesAndCostsSummaryValue.array(),
   printful_costs: RelativeCosts,
   profit: RelativeCosts,
   total_paid_orders: RelativeCosts,
-  costs_by_amount: z.array(CostsByAmountValue),
-  costs_by_product: z.array(CostsByProductValue),
-  costs_by_variant: z.array(CostsByVariantValue),
+  costs_by_amount: CostsByAmountValue.array(),
+  costs_by_product: CostsByProductValue.array(),
+  costs_by_variant: CostsByVariantValue.array(),
   average_fulfillment_time: RelativeCosts,
 })
 export type StoreStatistics = z.infer<typeof StoreStatistics>

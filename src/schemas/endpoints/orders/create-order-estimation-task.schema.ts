@@ -1,19 +1,22 @@
-import { WithStoreId } from '@printful-ts/schemas/common'
+import { z } from 'zod'
+
+import { StoreIdSchema } from '@printful-ts/schemas/common'
 import {
   Address,
   BaseRetailCosts,
   OrderEstimationTaskSummary,
   OrderItem,
 } from '@printful-ts/schemas/entities'
-import { z } from 'zod'
 
-export const CreateOrderEstimationTaskBody = WithStoreId(
-  z.object({
+export const CreateOrderEstimationTaskBody = z
+  .object({
     recipient: Address,
-    order_items: z.array(OrderItem),
+    order_items: OrderItem.array(),
     retail_costs: BaseRetailCosts,
-  }),
-)
+  })
+  .merge(StoreIdSchema)
+  .required()
+
 export type CreateOrderEstimationTaskBody = z.infer<
   typeof CreateOrderEstimationTaskBody
 >

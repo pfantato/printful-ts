@@ -17,7 +17,7 @@ export type ListCountriesSearchParams = z.infer<
 >
 
 export const ListCountriesResponse = z.object({
-  data: z.array(Country),
+  data: Country.array(),
   paging: Paging,
   _links: PagingHateoasLinks,
 })

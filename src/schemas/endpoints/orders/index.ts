@@ -1,6 +1,6 @@
 export * from './confirm-order.schema'
 export * from './create-order-estimation-task.schema'
-export * from './create-order-item.schema'
+export * from './order-item.schema'
 export * from './create-order.schema'
 export * from './get-invoice.schema'
 export * from './get-order-estimation-task.schema'

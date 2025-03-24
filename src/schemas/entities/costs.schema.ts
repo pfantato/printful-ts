@@ -7,17 +7,17 @@ export type CalculationStatus = z.infer<typeof CalculationStatus>
 
 export const Costs = z.object({
   calculation_status: CalculationStatus,
-  currency: Currency.nullable(),
-  subtotal: z.string().nullable(),
-  discount: z.string().nullable(),
-  shipping: z.string().nullable(),
-  digitization: z.string().nullable(),
-  additional_fee: z.string().nullable(),
-  fulfillment_fee: z.string().nullable(),
-  total: z.string().nullable(),
-  retail_delivery_fee: z.string().nullable(),
-  vat: z.string().nullable(),
-  tax: z.string().nullable(),
+  currency: Currency.optional(),
+  subtotal: z.string().optional(),
+  discount: z.string().optional(),
+  shipping: z.string().optional(),
+  digitization: z.string().optional(),
+  additional_fee: z.string().optional(),
+  fulfillment_fee: z.string().optional(),
+  total: z.string().optional(),
+  retail_delivery_fee: z.string().optional(),
+  vat: z.string().optional(),
+  tax: z.string().optional(),
 })
 export type Costs = z.infer<typeof Costs>
 

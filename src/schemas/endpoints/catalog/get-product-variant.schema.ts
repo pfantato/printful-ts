@@ -4,7 +4,7 @@ import { HateoasLink } from '@printful-ts/schemas/common'
 import { ProductVariant } from '@printful-ts/schemas/entities'
 
 export const GetProductVariantResponse = z.object({
-  data: z.array(ProductVariant),
+  data: ProductVariant.array(),
   _links: z.object({
     self: HateoasLink.optional(),
     product_variants: HateoasLink.optional(),

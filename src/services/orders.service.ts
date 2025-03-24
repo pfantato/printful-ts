@@ -1,40 +1,37 @@
 import type { Options } from 'ky'
 
-import { ORDERS_RESOURCE } from '@printful-ts/constants'
-import { bound, trace } from '@printful-ts/decorators'
+import { PrintfulApiResources } from '@printful-ts/constants'
 import {
   ConfirmOrderResponse,
-  CreateOrderBody,
+  OrderBody,
   CreateOrderEstimationTaskBody,
-  CreateOrderItemBody,
-  CreateOrderItemResponse,
-  GetOrderItemPathParams as OrderItemPathParams,
-  GetOrderItemResponse,
-  GetOrderItemsResponse,
-  GetOrderItemsSearchParams,
-  ListOrdersResponse,
-  ListOrdersSearchParams,
-  OrderResponse,
-  type StoreId,
-  type ExternalIdParam,
+  CreateOrderEstimationTaskResponse,
+  OrderItemBody,
+  OrderItemResponse,
+  ExternalOrInternalId,
   GetInvoiceResponse,
   GetOrderEstimationTaskResponse,
-  CreateOrderEstimationTaskResponse,
-} from '@printful-ts/schemas'
-import { PrintfulApiService } from './printful-api.service'
-import {
+  GetOrderItemResponse,
+  ListOrderItemsResponse,
+  ListOrderItemsSearchInput,
   ListOrderShipmentsResponse,
-  ListOrderShipmentsSearchParams,
-} from '@printful-ts/schemas/endpoints/orders/list-order-shipments.schema'
+  ListOrdersResponse,
+  ListOrdersSearchInput,
+  OrderItemPathParams,
+  OrderResponse,
+  InternalId,
+  ListOrderShipmentsSearchInput,
+} from '@printful-ts/schemas'
+
+import { PrintfulApiService } from './printful-api.service'
+import { z } from 'zod'
 
 export class OrdersService extends PrintfulApiService {
-  @bound
-  @trace
-  async listOrders(params: ListOrdersSearchParams = {}, options: Options = {}) {
-    const { store_id, ...searchParams } = ListOrdersSearchParams.parse(params)
+  async listOrders(params: ListOrdersSearchInput, options: Options = {}) {
+    const { store_id, ...searchParams } = ListOrdersSearchInput.parse(params)
 
-    return await this.request(
-      `${ORDERS_RESOURCE}`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}`,
       {
         ...options,
         store_id,
@@ -44,30 +41,28 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getOrder(
-    order_id: ExternalIdParam,
-    store_id?: StoreId,
+    orderId: ExternalOrInternalId,
+    store_id?: InternalId,
     options: Options = {},
   ) {
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}`,
+    const order_id = ExternalOrInternalId.parse(orderId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}`,
       {
         ...options,
-        store_id: store_id,
+        store_id,
       },
       OrderResponse,
     )
   }
 
-  @bound
-  @trace
-  async createOrder(body: CreateOrderBody, options: Options = {}) {
-    const { store_id, ...json } = CreateOrderBody.parse(body)
+  async createOrder(body: OrderBody, options: Options = {}) {
+    const { store_id: store_id, ...json } = OrderBody.parse(body)
 
-    return await this.request(
-      `${ORDERS_RESOURCE}`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}`,
       {
         ...options,
         method: 'post',
@@ -78,20 +73,21 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async updateOrder(
-    order_id: ExternalIdParam,
-    body: CreateOrderBody,
+    orderId: ExternalOrInternalId,
+    body: OrderBody,
     options: Options = {},
   ) {
-    const { store_id, ...json } = CreateOrderBody.parse(body)
+    const { store_id: storeId, ...json } = OrderBody.parse(body)
 
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}`,
+    const store_id = InternalId.parse(storeId)
+    const order_id = InternalId.parse(orderId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}`,
       {
         ...options,
-        method: 'pat',
+        method: 'patch',
         store_id,
         json,
       },
@@ -99,15 +95,16 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async confirmOrder(
-    order_id: ExternalIdParam,
-    store_id?: StoreId,
+    orderId: ExternalOrInternalId,
+    storeId?: InternalId,
     options: Options = {},
   ) {
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}/confirmation`,
+    const order_id = InternalId.parse(orderId)
+    const store_id = InternalId.parse(storeId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}/confirmation`,
       {
         ...options,
         method: 'post',
@@ -117,115 +114,16 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async deleteOrder(
-    order_id: ExternalIdParam,
-    store_id?: StoreId,
+    orderId: ExternalOrInternalId,
+    storeId: InternalId,
     options: Options = {},
   ) {
-    return await this.request(`${ORDERS_RESOURCE}/${order_id}`, {
-      ...options,
-      method: 'delete',
-      store_id,
-      validateResponseSchema: false,
-    })
-  }
+    const store_id = InternalId.parse(storeId)
+    const order_id = InternalId.parse(orderId)
 
-  @bound
-  @trace
-  async listOrderItems(
-    order_id: ExternalIdParam,
-    params: GetOrderItemsSearchParams,
-    options: Options = {},
-  ) {
-    const { store_id, ...searchParams } =
-      GetOrderItemsSearchParams.parse(params)
-
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}/order-items`,
-      {
-        ...options,
-        store_id,
-        searchParams,
-      },
-      GetOrderItemsResponse,
-    )
-  }
-
-  @bound
-  @trace
-  async getOrderItem(
-    path_params: OrderItemPathParams,
-    store_id: number,
-    options: Options = {},
-  ) {
-    const { order_id, order_item_id } = OrderItemPathParams.parse(path_params)
-
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}/order-items/${order_item_id}`,
-      {
-        ...options,
-        store_id: store_id,
-      },
-      GetOrderItemResponse,
-    )
-  }
-
-  @bound
-  @trace
-  async createOrderItem(
-    order_id: ExternalIdParam,
-    body: CreateOrderItemBody,
-    options: Options = {},
-  ) {
-    const { store_id, ...json } = CreateOrderItemBody.parse(body)
-
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}/order-items`,
-      {
-        ...options,
-        method: 'post',
-        store_id,
-        json,
-      },
-      CreateOrderItemResponse,
-    )
-  }
-
-  @bound
-  @trace
-  async updateOrderItem(
-    path_params: OrderItemPathParams,
-    body: CreateOrderItemBody,
-    options: Options = {},
-  ) {
-    const { order_id, order_item_id } = OrderItemPathParams.parse(path_params)
-    const { store_id, ...json } = CreateOrderItemBody.parse(body)
-
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}/order-items/${order_item_id}`,
-      {
-        ...options,
-        method: 'patch',
-        store_id,
-        json,
-      },
-      CreateOrderItemResponse,
-    )
-  }
-
-  @bound
-  @trace
-  async deleteOrderItem(
-    path_params: OrderItemPathParams,
-    store_id: number,
-    options: Options = {},
-  ) {
-    const { order_id, order_item_id } = OrderItemPathParams.parse(path_params)
-
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}/order-items/${order_item_id}`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}`,
       {
         ...options,
         method: 'delete',
@@ -235,18 +133,122 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
+  async listOrderItems(
+    orderId: ExternalOrInternalId,
+    params: ListOrderItemsSearchInput,
+    options: Options = {},
+  ) {
+    const { store_id: storeId, ...searchParams } =
+      ListOrderItemsSearchInput.parse(params)
+
+    const store_id = InternalId.parse(storeId)
+    const order_id = InternalId.parse(orderId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}/order-items`,
+      {
+        ...options,
+        store_id,
+        searchParams,
+      },
+      ListOrderItemsResponse,
+    )
+  }
+
+  async getOrderItem(
+    path_params: OrderItemPathParams,
+    storeId: number,
+    options: Options = {},
+  ) {
+    const { order_id: orderId, order_item_id: orderItemId } =
+      OrderItemPathParams.parse(path_params)
+
+    const store_id = InternalId.parse(storeId)
+    const order_id = ExternalOrInternalId.parse(orderId)
+    const order_item_id = ExternalOrInternalId.parse(orderItemId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}/order-items/${order_item_id}`,
+      {
+        ...options,
+        store_id,
+      },
+      GetOrderItemResponse,
+    )
+  }
+
+  async createOrderItem(
+    orderId: ExternalOrInternalId,
+    body: OrderItemBody,
+    options: Options = {},
+  ) {
+    const { store_id: storeId, ...json } = OrderItemBody.parse(body)
+
+    const store_id = InternalId.parse(storeId)
+    const order_id = ExternalOrInternalId.parse(orderId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}/order-items`,
+      {
+        ...options,
+        method: 'post',
+        store_id,
+        json,
+      },
+      OrderItemResponse,
+    )
+  }
+
+  async updateOrderItem(
+    path_params: OrderItemPathParams,
+    body: OrderItemBody,
+    options: Options = {},
+  ) {
+    const { order_id, order_item_id } = OrderItemPathParams.parse(path_params)
+    const { store_id: storeId, ...json } = OrderItemBody.parse(body)
+    const store_id = InternalId.parse(storeId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}/order-items/${order_item_id}`,
+      {
+        ...options,
+        method: 'patch',
+        store_id,
+        json,
+      },
+      OrderItemResponse,
+    )
+  }
+
+  async deleteOrderItem(
+    path_params: OrderItemPathParams,
+    storeId: number,
+    options: Options = {},
+  ) {
+    const { order_id, order_item_id } = OrderItemPathParams.parse(path_params)
+    const store_id = InternalId.parse(storeId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}/order-items/${order_item_id}`,
+      {
+        ...options,
+        method: 'delete',
+        store_id,
+        validateResponseSchema: false,
+      },
+    )
+  }
+
   async listShipments(
-    order_id: ExternalIdParam,
-    params: ListOrderShipmentsSearchParams,
+    order_id: ExternalOrInternalId,
+    params: ListOrderShipmentsSearchInput,
     options: Options = {},
   ) {
     const { store_id, ...searchParams } =
-      ListOrderShipmentsSearchParams.parse(params)
+      ListOrderShipmentsSearchInput.parse(params)
 
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}/shipments`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}/shipments`,
       {
         ...options,
         store_id,
@@ -256,15 +258,16 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getInvoice(
-    order_id: ExternalIdParam,
-    store_id?: StoreId,
+    orderId: ExternalOrInternalId,
+    storeId?: InternalId,
     options: Options = {},
   ) {
-    return await this.request(
-      `${ORDERS_RESOURCE}/${order_id}/invoice`,
+    const store_id = InternalId.parse(storeId)
+    const order_id = ExternalOrInternalId.parse(orderId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDERS}/${order_id}/invoices`,
       {
         ...options,
         store_id,
@@ -273,15 +276,16 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getOrderEstimationTask(
-    task_id: string,
-    store_id?: StoreId,
+    taskId: string,
+    storeId?: InternalId,
     options: Options = {},
   ) {
-    return await this.request(
-      `${ORDERS_RESOURCE}/estimation-task/${task_id}`,
+    const store_id = InternalId.parse(storeId)
+    const task_id = z.string().nonempty().parse(taskId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDER_ESTIMATION_TASKS}/${task_id}`,
       {
         ...options,
         store_id,
@@ -290,16 +294,14 @@ export class OrdersService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async createOrderEstimationTask(
     body: CreateOrderEstimationTaskBody,
     options: Options = {},
   ) {
     const { store_id, ...json } = CreateOrderEstimationTaskBody.parse(body)
 
-    return await this.request(
-      `${ORDERS_RESOURCE}/estimation-task`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.ORDER_ESTIMATION_TASKS}`,
       {
         ...options,
         method: 'post',

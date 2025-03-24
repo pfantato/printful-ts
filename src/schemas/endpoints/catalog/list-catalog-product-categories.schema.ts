@@ -20,11 +20,13 @@ export type ListProductCategoriesSearchParams = z.infer<
 >
 
 export const ListProductCategoriesResponse = z.object({
-  data: z.array(CatalogCategory),
+  data: CatalogCategory.array(),
   paging: Paging,
-  _links: PagingHateoasLinks.extend({
-    all_categories: HateoasLink,
-  }),
+  _links: PagingHateoasLinks.merge(
+    z.object({
+      all_categories: HateoasLink,
+    }),
+  ),
 })
 export type ListProductCategoriesResponse = z.infer<
   typeof ListProductCategoriesResponse

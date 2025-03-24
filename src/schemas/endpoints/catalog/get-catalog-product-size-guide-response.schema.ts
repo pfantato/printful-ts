@@ -1,15 +1,26 @@
 import { z } from 'zod'
 
-import { HateoasLink, Unit, Localized } from '@printful-ts/schemas/common'
+import { HateoasLink, Unit, WithLocale } from '@printful-ts/schemas/common'
 import { ProductSizeGuide } from '@printful-ts/schemas/entities'
-import { arrayToQueryString } from '@printful-ts/schemas/utils'
+import { ArrayToString, StringToArray } from '@printful-ts/schemas/utils'
 
-export const GetProductSizeGuideSearchParams = Localized(
-  z.object({
-    unit: z.array(Unit).transform(arrayToQueryString).optional(),
-  }),
-)
-export type GetProductSizeGuideSearchParams = z.infer<
+export const GetProductSizeGuideSearchInput = z
+  .object({
+    unit: ArrayToString(Unit).optional(),
+  })
+  .merge(WithLocale)
+
+export type GetProductSizeGuideSearchInput = z.input<
+  typeof GetProductSizeGuideSearchInput
+>
+
+export const GetProductSizeGuideSearchParams = z
+  .object({
+    unit: StringToArray.pipe(Unit.array()).optional(),
+  })
+  .merge(WithLocale)
+
+export type GetProductSizeGuideSearchParams = z.input<
   typeof GetProductSizeGuideSearchParams
 >
 

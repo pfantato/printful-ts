@@ -3,31 +3,46 @@ import { z } from 'zod'
 import {
   ColorValue,
   HateoasLink,
+  InternalId,
   Paging,
-  Localized,
+  WithLocale,
 } from '@printful-ts/schemas/common'
 import { VariantImages } from '@printful-ts/schemas/entities'
-import { arrayToQueryString } from '@printful-ts/schemas/utils'
+import {
+  ArrayToString,
+  StringToArray,
+  StringToNumber,
+} from '@printful-ts/schemas/utils'
 
-export const GetProductBlankMockupsSearchParams = Localized(
-  z.object({
-    mockup_style_ids: z
-      .array(z.number())
-      .transform(arrayToQueryString)
-      .optional(),
-    colors: z.array(ColorValue).transform(arrayToQueryString).optional(),
+export const GetProductBlankMockupsSearchInput = z
+  .object({
+    mockup_style_ids: ArrayToString(InternalId).optional(),
+    colors: ArrayToString(ColorValue).optional(),
     placement: z.string().optional(),
-  }),
-)
-export type GetProductBlankMockupsSearchParams = z.infer<
+  })
+  .merge(WithLocale)
+export type GetProductBlankMockupsSearchInput = z.input<
+  typeof GetProductBlankMockupsSearchInput
+>
+
+export const GetProductBlankMockupsSearchParams = z
+  .object({
+    mockup_style_ids: StringToArray.pipe(StringToNumber)
+      .pipe(InternalId)
+      .optional(),
+    colors: StringToArray.pipe(ColorValue).optional(),
+    placement: z.string().optional(),
+  })
+  .merge(WithLocale)
+export type GetProductBlankMockupsSearchParams = z.input<
   typeof GetProductBlankMockupsSearchParams
 >
 
 export const GetProductBlankMockupsResponse = z.object({
-  data: z.array(VariantImages),
+  data: VariantImages.array(),
   paging: Paging,
   _links: z.object({
-    _self: HateoasLink,
+    self: HateoasLink,
     product_details: HateoasLink,
   }),
 })

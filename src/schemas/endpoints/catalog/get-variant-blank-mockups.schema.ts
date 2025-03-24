@@ -1,29 +1,41 @@
 import { z } from 'zod'
 
-import { HateoasLink, Localized } from '@printful-ts/schemas/common'
+import {
+  HateoasLink,
+  InternalId,
+  WithLocale,
+} from '@printful-ts/schemas/common'
 import { VariantImages } from '@printful-ts/schemas/entities'
-import { arrayToQueryString } from '@printful-ts/schemas/utils'
+import { ArrayToString, StringToArray } from '@printful-ts/schemas/utils'
 
-export const GetVarianttBlankMockupsSearchParams = Localized(
-  z.object({
-    mockup_style_ids: z
-      .array(z.number())
-      .transform(arrayToQueryString)
-      .optional(),
+export const GetVariantBlankMockupsSearchInput = z
+  .object({
+    mockup_style_ids: ArrayToString(InternalId).optional(),
     placement: z.string().optional(),
-  }),
-)
-export type GetVarianttBlankMockupsSearchParams = z.infer<
-  typeof GetVarianttBlankMockupsSearchParams
+  })
+  .merge(WithLocale)
+export type GetVariantBlankMockupsSearchInput = z.input<
+  typeof GetVariantBlankMockupsSearchInput
 >
 
-export const GetVarianttBlankMockupsResponse = z.object({
-  data: z.array(VariantImages),
+export const GetVariantBlankMockupsSearchParams = z
+  .object({
+    mockup_style_ids: StringToArray.pipe(InternalId.array()).optional(),
+    placement: z.string().optional(),
+  })
+  .merge(WithLocale)
+
+export type GetVariantBlankMockupsSearchParams = z.input<
+  typeof GetVariantBlankMockupsSearchParams
+>
+
+export const GetVariantBlankMockupsResponse = z.object({
+  data: VariantImages.array(),
   _links: z.object({
-    _self: HateoasLink,
+    self: HateoasLink,
     variant_details: HateoasLink,
   }),
 })
-export type GetVarianttBlankMockupsResponse = z.infer<
-  typeof GetVarianttBlankMockupsResponse
+export type GetVariantBlankMockupsResponse = z.infer<
+  typeof GetVariantBlankMockupsResponse
 >

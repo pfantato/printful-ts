@@ -16,7 +16,10 @@
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
-    "publish": "npm publish --access=public"
+    "publish": "npm publish --access=public",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major"
   },
   "repository": {
     "type": "git",
@@ -70,6 +73,7 @@
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
     "prettier": "^3.5.3",
+    "standard-version": "^9.5.0",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
     "vite-tsconfig-paths": "^5.1.4",

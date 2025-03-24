@@ -31,14 +31,12 @@ jobs:
         run: npm ci
 
       - name: 🧰 Cache Vitest Results
-        id: tests-cache
         uses: actions/cache@v4
         with:
           path: coverage
-          key: coverage-${{ runner.os }}-${{ hashFiles('**/*.ts') }}
+          key: vitest-${{ runner.os }}-${{ hashFiles('**/*.ts') }}
 
       - name: 🔬 Run Unit Tests with Coverage
-        if: steps.tests-cache.outputs.cache-hit != 'true'
         run: npm run test:coverage
 
       - name: 📊 Upload Coverage Reports

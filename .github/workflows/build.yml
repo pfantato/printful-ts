@@ -4,31 +4,36 @@ on:
   workflow_call:
     outputs:
       build-path:
-        description: "Build output directory"
-        value: "./lib"
+        description: 'Build output directory'
+        value: './lib'
 
 jobs:
   setup:
     uses: ./.github/workflows/npm-ci.yml
 
-  run-build:
+  build:
     needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: 💾 Checkout Repository
         uses: actions/checkout@v4
 
+      - name: 🚀 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: 📂 Download Node Modules
         uses: actions/download-artifact@v4
         with:
-          name: node_modules
+          name: node_modules-${{ github.run_id }}
 
       - name: 🧰 Cache Build Output
         id: build-cache
         uses: actions/cache@v4
         with:
           path: lib
-          key: build-${{ runner.os }}-${{ hashFiles('tsup.config.ts', 'src/**/*.ts') }}
+          key: build-${{ runner.os }}-${{ hashFiles('tsup.config.ts', 'src/**/*.ts') }}-${{ github.run_id }}
 
       - name: ⚙️ Compile SDK
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -37,5 +42,5 @@ jobs:
       - name: 📦 Upload Compiled Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: dist-${{ github.run_id }}
           path: ./lib

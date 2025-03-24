@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/test-coverage.yml
 
   build:
     uses: ./.github/workflows/build.yml
@@ -19,22 +19,22 @@ jobs:
     uses: ./.github/workflows/generate-release-notes.yml
 
   release:
-    needs: [build, changelog, release-notes]
+    needs: [build, test, changelog, release-notes]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v4
         with:
-          name: dist
+          name: dist-${{ github.run_id }}
 
       - uses: actions/download-artifact@v4
         with:
-          name: changelog
+          name: changelog-${{ github.run_id }}
 
       - uses: actions/download-artifact@v4
         with:
-          name: release-notes
+          name: release-notes-${{ github.run_id }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

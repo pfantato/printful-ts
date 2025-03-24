@@ -7,16 +7,16 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/reusable/test-coverage.yml
+    uses: ./.github/workflows/test-coverage.yml
 
   build:
-    uses: ./.github/workflows/reusable/build.yml
+    uses: ./.github/workflows/build.yml
 
   changelog:
-    uses: ./.github/workflows/reusable/generate-changelog.yml
+    uses: ./.github/workflows/generate-changelog.yml
 
   release-notes:
-    uses: ./.github/workflows/reusable/generate-release-notes.yml
+    uses: ./.github/workflows/generate-release-notes.yml
 
   release:
     needs: [build, changelog, release-notes]

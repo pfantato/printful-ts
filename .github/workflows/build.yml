@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/reusable/npm-ci.yml
+    uses: ./.github/workflows/npm-ci.yml
 
   run-build:
     needs: build

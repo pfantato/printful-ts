@@ -7,16 +7,16 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/reusable/test-coverage.yml
+    uses: ./.github/workflows/test-coverage.yml
 
   maybe-upload-codecov:
     needs: test
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/reusable/upload-codecov.yml
+    uses: ./.github/workflows/upload-codecov.yml
     with:
       clover-path: ./coverage/clover.xml
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build:
-    uses: ./.github/workflows/reusable/build.yml
+    uses: ./.github/workflows/build.yml

@@ -9,7 +9,7 @@ on:
 
 jobs:
   test-coverage:
-    uses: ./.github/workflows/reusable/npm-ci.yml
+    uses: ./.github/workflows/npm-ci.yml
 
   run-tests:
     needs: test-coverage

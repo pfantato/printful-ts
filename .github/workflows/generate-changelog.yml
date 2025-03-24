@@ -1,25 +1,26 @@
-name: Reusable - Generate Changelog
+name: Generate Changelog
 
 on:
   workflow_call:
     outputs:
       changelog-path:
-        description: 'Changelog markdown path'
-        value: './CHANGELOG.md'
+        description: "Changelog markdown path"
+        value: "./CHANGELOG.md"
 
 jobs:
-  generate-changelog:
+  changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Generate Changelog
+      - name: 📝 Create Changelog
         id: changelog
         uses: heinrichreimer/action-github-changelog-generator@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Commit Changelog
+      - name: 🖊️ Commit Changelog
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -27,7 +28,8 @@ jobs:
           git commit -m "chore: update changelog [skip ci]" || echo "No changes to commit"
           git push
 
-      - uses: actions/upload-artifact@v4
+      - name: 📁 Upload Changelog
+        uses: actions/upload-artifact@v4
         with:
           name: changelog
           path: ./CHANGELOG.md

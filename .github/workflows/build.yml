@@ -1,36 +1,41 @@
-name: Reusable - Build
+name: Build
 
 on:
   workflow_call:
     outputs:
       build-path:
-        description: 'Build output directory'
-        value: './lib'
+        description: "Build output directory"
+        value: "./lib"
 
 jobs:
-  build:
+  setup:
     uses: ./.github/workflows/npm-ci.yml
 
   run-build:
-    needs: build
+    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - name: 📂 Download Node Modules
+        uses: actions/download-artifact@v4
         with:
           name: node_modules
 
-      - uses: actions/cache@v4
+      - name: 🧰 Cache Build Output
         id: build-cache
+        uses: actions/cache@v4
         with:
           path: lib
           key: build-${{ runner.os }}-${{ hashFiles('tsup.config.ts', 'src/**/*.ts') }}
 
-      - if: steps.build-cache.outputs.cache-hit != 'true'
+      - name: ⚙️ Compile SDK
+        if: steps.build-cache.outputs.cache-hit != 'true'
         run: npm run build
 
-      - uses: actions/upload-artifact@v4
+      - name: 📦 Upload Compiled Artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: ./lib

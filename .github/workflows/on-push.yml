@@ -7,9 +7,9 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/test-coverage.yml
+    uses: ./.github/workflows/test.yml
 
-  maybe-upload-codecov:
+  codecov:
     needs: test
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/upload-codecov.yml

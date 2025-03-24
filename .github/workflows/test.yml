@@ -1,0 +1,39 @@
+name: Test Coverage
+
+on:
+  workflow_call:
+    outputs:
+      coverage-dir:
+        description: "Coverage directory path"
+        value: "./coverage"
+
+jobs:
+  setup:
+    uses: ./.github/workflows/npm-ci.yml
+
+  run-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📂 Download Node Modules
+        uses: actions/download-artifact@v4
+        with:
+          name: node_modules
+
+      - name: 🧰 Cache Vitest Results
+        uses: actions/cache@v4
+        with:
+          path: .vitest
+          key: vitest-${{ runner.os }}-${{ hashFiles('**/*.ts') }}
+
+      - name: 🔬 Run Unit Tests with Coverage
+        run: npm run test:coverage
+
+      - name: 📊 Upload Coverage Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: ./coverage

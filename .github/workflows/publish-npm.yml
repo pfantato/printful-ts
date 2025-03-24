@@ -1,4 +1,4 @@
-name: Reusable - Publish NPM
+name: Publish NPM
 
 on:
   workflow_call:
@@ -7,26 +7,31 @@ on:
         required: true
 
 jobs:
-  prepare:
+  setup:
     uses: ./.github/workflows/npm-ci.yml
 
   publish:
-    needs: prepare
+    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - name: 📂 Download Node Modules
+        uses: actions/download-artifact@v4
         with:
           name: node_modules
 
-      - uses: actions/setup-node@v4
+      - name: 🌐 Setup Node Registry
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org/'
 
-      - run: npm run build
+      - name: ⚙️ Build Package
+        run: npm run build
 
-      - run: npm publish --access=public
+      - name: 📦 Publish to NPM
+        run: npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

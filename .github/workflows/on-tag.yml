@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/test-coverage.yml
+    uses: ./.github/workflows/test.yml
 
   build:
     uses: ./.github/workflows/build.yml

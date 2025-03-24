@@ -1,0 +1,50 @@
+name: PR Semantic Version Bump
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  bump-version:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup Git User
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: 🏷️ Determine Bump Type From Labels
+        id: version
+        run: |
+          labels=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels)
+          if echo "$labels" | grep -q '"name": "major"'; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif echo "$labels" | grep -q '"name": "minor"'; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+
+      - name: 🔧 Bump Version and Commit
+        run: |
+          version_type=${{ steps.version.outputs.type }}
+          git fetch origin main
+          git checkout main
+          git pull
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          NEW_VERSION=$(npm version "$version_type" --no-git-tag-version)
+          git add package.json package-lock.json
+          git commit -m "chore(release): bump version $CURRENT_VERSION → $NEW_VERSION [skip ci]"
+          git push
+
+      - name: 🔖 Tag and Push Release
+        run: |
+          TAG=v$(node -p "require('./package.json').version")
+          git tag "$TAG"
+          git push origin "$TAG"

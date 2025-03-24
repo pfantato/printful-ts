@@ -1,32 +1,37 @@
-name: Reusable - npm ci
+name: npm ci
 
 on:
   workflow_call:
     outputs:
       node-modules-path:
-        description: 'Node modules output directory'
-        value: './node_modules'
+        description: "Node modules output directory"
+        value: "./node_modules"
 
 jobs:
   install:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
 
-      - id: node-cache
+      - name: 🔹 Cache Dependencies
+        id: node-cache
         uses: actions/cache@v4
         with:
           path: node_modules
           key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      - uses: actions/setup-node@v4
+      - name: 🚀 Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - if: steps.node-cache.outputs.cache-hit != 'true'
+      - name: ♻️ Install Dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
 
-      - uses: actions/upload-artifact@v4
+      - name: 📁 Upload Node Modules
+        uses: actions/upload-artifact@v4
         with:
           name: node_modules
           path: node_modules

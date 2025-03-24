@@ -26,15 +26,15 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: dist-${{ github.run_id }}
+          name: dist
 
       - uses: actions/download-artifact@v4
         with:
-          name: changelog-${{ github.run_id }}
+          name: changelog
 
       - uses: actions/download-artifact@v4
         with:
-          name: release-notes-${{ github.run_id }}
+          name: release-notes
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

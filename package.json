@@ -12,7 +12,6 @@
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "test": "npx vitest --typecheck",
     "test:coverage": "npx vitest --coverage",
-    "prepare": "npm run build",
     "prepublishOnly": "npm t && npm run lint",
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",

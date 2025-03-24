@@ -24,15 +24,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.run_id }}
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: ♻️ Install Dependencies
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: 📁 Upload Node Modules
+        if: steps.node-cache.outputs.cache-hit != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: node_modules-${{ github.run_id }}
+          name: node_modules
           path: node_modules
           retention-days: 5

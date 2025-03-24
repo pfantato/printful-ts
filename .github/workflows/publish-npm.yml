@@ -29,12 +29,12 @@ jobs:
       - name: 📂 Download Node Modules
         uses: actions/download-artifact@v4
         with:
-          name: node_modules-${{ github.run_id }}
+          name: node_modules
 
       - name: 📂 Download Build
         uses: actions/download-artifact@v4
         with:
-          name: dist-${{ github.run_id }}
+          name: dist
 
       - name: 📦 Publish to NPM
         run: npm publish --access=public

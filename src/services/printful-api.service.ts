@@ -1,162 +1,182 @@
-import { z } from 'zod'
+import bourne from '@hapi/bourne'
 import ky, { type KyInstance, type Options } from 'ky'
+import { HttpResponse } from 'msw'
+import { z, type AnyZodObject } from 'zod'
 
 import {
   AUTHORIZATION_HEADER,
   LANGUAGE_HEADER,
   STORE_ID_HEADER,
 } from '@printful-ts/constants'
-import { bound, trace } from '@printful-ts/decorators'
-import { PrintfulError, PrintfulErrorCode } from '@printful-ts/errors'
 import {
-  Locale,
   PrintfulVersion,
   PrintfulConfig,
   OAuthScopeValue,
   GetOAuthScopesResponse,
-  StoreId,
+  RequestOptions,
 } from '@printful-ts/schemas'
+import { deepMerge } from '@printful-ts/utils'
 
-type RequestOptions = Options & {
-  validateResponseSchema?: boolean
-  locale?: Locale
-  store_id?: number
-  checkScopes?: Array<OAuthScopeValue>
-}
+export class PrintfulApiService {
+  private _privateToken: string
+  private _baseUrl: string
+  private _version: PrintfulVersion
+  private _api: KyInstance
+  private _defaultOptions: RequestOptions
 
-export abstract class PrintfulApiService {
-  private privateToken: string
-  private baseUrl: string
-  private version: PrintfulVersion
-  private api: KyInstance
-
-  constructor(config: PrintfulConfig) {
-    const { success, data, error } = PrintfulConfig.safeParse(config)
-
-    if (!success) {
-      throw new PrintfulError(
-        error.issues.toLocaleString(),
-        PrintfulErrorCode.Enum.SCHEMA_ERROR,
-      )
-    }
-
-    this.privateToken = data.privateToken
-    this.baseUrl = data.baseUrl
-    this.version = data.version
-
-    this.api = this.configure()
+  constructor(config: PrintfulConfig, defaultOptions: RequestOptions = {}) {
+    this.setup(config)
+    this.configure(defaultOptions)
   }
 
-  protected getBaseUrl() {
-    if (this.version === 'v1') {
+  protected get privateToken() {
+    return this._privateToken
+  }
+
+  protected set privateToken(token: string) {
+    this._privateToken = z.string().parse(token)
+  }
+
+  protected get version() {
+    return this._version
+  }
+
+  protected set version(version: PrintfulVersion) {
+    this._version = PrintfulVersion.parse(version)
+  }
+
+  protected get api() {
+    return this._api
+  }
+
+  protected get defaultOptions() {
+    return this._defaultOptions
+  }
+
+  protected get baseUrl() {
+    return this._baseUrl
+  }
+
+  protected set baseUrl(baseUrl: string) {
+    this._baseUrl = z.string().url().parse(baseUrl)
+  }
+
+  public getBaseUrl(useVersion = true): string {
+    if (this.version !== 'v2' || !useVersion) {
       return this.baseUrl
     }
     return `${this.baseUrl}/${this.version}`
   }
 
-  @bound
-  @trace
-  protected async isAllowed(scopes: Array<OAuthScopeValue>) {
-    const {
-      success,
-      data: requiredScopes,
-      error,
-    } = z.array(OAuthScopeValue).safeParse(scopes)
+  private setup(config: PrintfulConfig) {
+    const { privateToken, baseUrl, version } = PrintfulConfig.parse(config)
 
-    if (!success) {
-      throw new PrintfulError(
-        error.issues.toLocaleString(),
-        PrintfulErrorCode.Enum.SCHEMA_ERROR,
-      )
-    }
+    this.privateToken = privateToken
+    this.baseUrl = baseUrl
+    this.version = version
+  }
 
-    const response = await this.request(
-      '/oauth-scopes',
-      {},
+  public async checkScopes(
+    scopes: Array<string>,
+    options: RequestOptions = {},
+  ): Promise<boolean> {
+    const requiredScopes = OAuthScopeValue.array().parse(scopes)
+
+    const response = await this.makeRequest(
+      'oauth-scopes',
+      { ...options, prefixUrl: this.getBaseUrl(false) },
       GetOAuthScopesResponse,
     )
+
     const allowedScopes = response.data?.map(scope => scope.value)
 
-    return requiredScopes.every(scope => allowedScopes.includes(scope))
+    return requiredScopes.every(scope => allowedScopes?.includes(scope))
   }
 
-  private configure({
-    locale: language,
-    store_id,
-    checkScopes,
-    ...options
-  }: RequestOptions = {}) {
-    const defaultOptions: Options = Object.assign({}, options, {
-      headers: {
-        ...options.headers,
-        'Content-Type': 'application/json',
-      },
+  public configure(options: RequestOptions) {
+    const headers = {
+      'Content-Type': 'application/json',
+    }
+
+    const refineRequest = async (request: Request) => {
+      request.headers.set(AUTHORIZATION_HEADER, `Bearer ${this._privateToken}`)
+      // TODO: Enable scope check
+      // if (Array.isArray(checkScopes)) {
+      //   const isAllowed = await this.checkScopes(checkScopes)
+      //   if (!isAllowed) {
+      //     throw new PrintfulError(
+      //       'You are not allowed to perform this action',
+      //       PrintfulErrorCode.Enum.FORBIDDEN,
+      //     )
+      //   }
+      // }
+    }
+
+    const baseOptions: Options = deepMerge(this._defaultOptions, {
+      headers,
       prefixUrl: this.getBaseUrl(),
+      parseJson: value => bourne.safeParse(value),
+      throwHttpErrors: false,
       hooks: {
-        ...options.hooks,
-        beforeRequest: [
-          async request => {
-            request.headers.set(
-              AUTHORIZATION_HEADER,
-              `Bearer ${this.privateToken}`,
-            )
-            if (store_id) {
-              request.headers.set(
-                STORE_ID_HEADER,
-                StoreId.parse(store_id).toString(),
-              )
-            }
-            if (language) {
-              request.headers.set(LANGUAGE_HEADER, Locale.parse(language))
-            }
-            if (checkScopes) {
-              const isAllowed = await this.isAllowed(checkScopes)
-              if (!isAllowed) {
-                throw new PrintfulError(
-                  'You are not allowed to perform this action',
-                  PrintfulErrorCode.Enum.FORBIDDEN,
-                )
-              }
-            }
-          },
-        ],
-      },
-    } as Options)
-
-    return ky.create(defaultOptions)
-  }
-
-  @bound
-  @trace
-  protected async request<T>(
-    endpoint: string,
-    requestOptions?: RequestOptions,
-    schema?: z.ZodSchema<T>,
-  ): Promise<T> {
-    const { validateResponseSchema: validateSchema, ...options } =
-      requestOptions || {
-        validateResponseSchema: process.env.PRINTFUL_SCHEMA_VALIDATION
-          ? process.env.PRINTFUL_SCHEMA_VALIDATION === 'true'
-          : !!schema,
-      }
-
-    this.api = this.configure({
-      hooks: {
-        afterResponse: [
-          async (_request, _options, response) => {
-            if (!schema || !validateSchema) {
-              return response
-            }
-
-            const jsonResponse = await response.clone().json()
-            schema.parse(jsonResponse)
-
-            return response
-          },
-        ],
+        beforeRequest: [refineRequest],
       },
     })
 
-    return await this.api<T>(endpoint, options).json()
+    this._defaultOptions = deepMerge(baseOptions, options)
+    this._api = ky.create(this._defaultOptions)
+
+    return this._api
+  }
+
+  public async makeRequest<T extends AnyZodObject>(
+    endpoint: string,
+    options?: RequestOptions,
+    schema?: T,
+  ): Promise<z.infer<T>> {
+    const { validateResponseSchema, ...customOptions } = Object.assign(
+      {},
+      { ...this._defaultOptions, validateResponseSchema: Boolean(schema) },
+      options,
+    )
+
+    const afterResponseHook = async (
+      _request: Request,
+      _options: Options,
+      _response: Response,
+    ) => {
+      if (!schema || !validateResponseSchema || !_response.ok) {
+        return _response.json()
+      }
+
+      const response = await _response.json()
+      const data = schema.parse(response)
+
+      const { headers, status, statusText } = _response
+
+      return HttpResponse.json(data, {
+        headers,
+        status,
+        statusText,
+      })
+    }
+
+    const headers = new Headers(options?.headers ?? {})
+
+    if (options?.store_id) {
+      headers.set(STORE_ID_HEADER, `${options.store_id}`)
+    }
+    if (options?.locale) {
+      headers.set(LANGUAGE_HEADER, options.locale)
+    }
+    const baseOptions: RequestOptions = deepMerge(customOptions, {
+      headers,
+      hooks: {
+        afterResponse: [afterResponseHook],
+      },
+    })
+
+    const requestOptions = deepMerge(this._defaultOptions, baseOptions)
+
+    return await this._api<T>(endpoint, requestOptions).json()
   }
 }

@@ -1,8 +1,11 @@
-export const CATALOG_CATEGORY_RESOURCE = 'catalog-categories'
-export const CATALOG_VARIANTS_RESOURCE = 'catalog-variants'
-export const CATALOG_PRODUCTS_RESOURCE = 'catalog-products'
-export const ORDERS_RESOURCE = 'orders'
-export const SHIPPING_RATES_RESOURCE = 'shipping-rates'
-export const STORES_RESOURCE = 'stores'
-export const COUNTRIES_RESOURCE = 'countries'
-export const WAREHOUSE_PRODUCTS_SERVICE = 'warehouse-products'
+export enum PrintfulApiResources {
+  CATALOG_CATEGORIES = 'catalog-categories',
+  CATALOG_VARIANTS = 'catalog-variants',
+  CATALOG_PRODUCTS = 'catalog-products',
+  ORDERS = 'orders',
+  ORDER_ESTIMATION_TASKS = 'order-estimation-tasks',
+  SHIPPING_RATES = 'shipping-rates',
+  STORES = 'stores',
+  COUNTRIES = 'countries',
+  WAREHOUSE_PRODUCTS = 'warehouse-products',
+}

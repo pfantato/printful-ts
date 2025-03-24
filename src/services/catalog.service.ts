@@ -1,54 +1,50 @@
 import type { Options } from 'ky'
-import {
-  CATALOG_CATEGORY_RESOURCE,
-  CATALOG_PRODUCTS_RESOURCE,
-  CATALOG_VARIANTS_RESOURCE,
-} from '@printful-ts/constants'
-import { bound, trace } from '@printful-ts/decorators'
+
+import { PrintfulApiResources } from '@printful-ts/constants'
 import {
   GetCatalogCategoryResponse,
   GetProductBlankMockupsResponse,
-  GetProductBlankMockupsSearchParams,
+  GetProductBlankMockupsSearchInput,
   GetProductMockupsResponse,
-  GetProductMockupsSearchParams,
+  GetProductMockupsSearchInput,
   GetProductMockupTemplatesResponse,
-  GetProductMockupTemplatesSearchParams,
+  GetProductMockupTemplatesSearchInput,
   GetProductResponse,
-  GetProductSearchParams,
+  GetProductSearchInput,
   GetProductSizeGuideResponse,
-  GetProductSizeGuideSearchParams,
+  GetProductSizeGuideSearchInput,
   GetProductStockAvailabilityResponse,
-  GetProductStockAvailabilitySearchParams,
+  GetProductStockAvailabilitySearchInput,
   GetProductVariantResponse,
+  GetVariantBlankMockupsResponse,
+  GetVariantBlankMockupsSearchInput,
   GetVariantStockAvailabilityResponse,
-  GetVariantStockAvailabilitySearchParams,
-  GetVarianttBlankMockupsResponse,
-  GetVarianttBlankMockupsSearchParams,
-  Locale,
+  GetVariantStockAvailabilitySearchInput,
+  InternalId,
   ListCatalogCategoriesResponse,
   ListProductCategoriesResponse,
   ListProductCategoriesSearchParams,
   ListProductPricesResponse,
   ListProductPricesSearchParams,
   ListProductsResponse,
-  ListProductsSearchParams,
+  ListProductsSearchInput,
   ListProductVariantPricesResponse,
   ListProductVariantPricesSearchParams,
   ListProductVariantsResponse,
+  Locale,
 } from '@printful-ts/schemas'
+
 import { PrintfulApiService } from './printful-api.service'
 
 export class CatalogProductsService extends PrintfulApiService {
-  @bound
-  @trace
   async listProducts(
-    params: ListProductsSearchParams = {},
+    params: ListProductsSearchInput = {},
     options: Options = {},
   ) {
-    const { locale, ...searchParams } = ListProductsSearchParams.parse(params)
+    const { locale, ...searchParams } = ListProductsSearchInput.parse(params)
 
-    return await this.request(
-      CATALOG_PRODUCTS_RESOURCE,
+    return await this.makeRequest(
+      PrintfulApiResources.CATALOG_PRODUCTS,
       {
         ...options,
         locale,
@@ -58,17 +54,16 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getProduct(
-    product_id: number,
-    params: GetProductSearchParams,
+    productId: number,
+    params: GetProductSearchInput = {},
     options: Options = {},
   ) {
-    const { locale, ...searchParams } = GetProductSearchParams.parse(params)
+    const product_id = InternalId.parse(productId)
+    const { locale, ...searchParams } = GetProductSearchInput.parse(params)
 
-    return await this.request(
-      `${CATALOG_PRODUCTS_RESOURCE}/${product_id}`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_PRODUCTS}/${product_id}`,
       {
         ...options,
         locale,
@@ -78,15 +73,15 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async listProductVariants(
-    product_id: number,
+    productId: number,
     locale?: Locale,
     options: Options = {},
   ) {
-    return await this.request(
-      `${CATALOG_PRODUCTS_RESOURCE}/${product_id}/${CATALOG_VARIANTS_RESOURCE}`,
+    const product_id = InternalId.parse(productId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_PRODUCTS}/${product_id}/${PrintfulApiResources.CATALOG_VARIANTS}`,
       {
         ...options,
         locale,
@@ -95,15 +90,15 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getProductVariant(
-    variant_id: number,
+    variantId: number,
     locale?: Locale,
     options: Options = {},
   ) {
-    return await this.request(
-      `${CATALOG_VARIANTS_RESOURCE}/${variant_id}`,
+    const variant_id = InternalId.parse(variantId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_VARIANTS}/${variant_id}`,
       {
         ...options,
         locale,
@@ -112,17 +107,17 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async listProductCategories(
-    product_id: number,
-    params: ListProductCategoriesSearchParams,
+    productId: number,
+    params: ListProductCategoriesSearchParams = {},
     options: Options = {},
   ) {
+    const product_id = InternalId.parse(productId)
+
     const searchParams = ListProductCategoriesSearchParams.parse(params)
 
-    return await this.request(
-      `${CATALOG_PRODUCTS_RESOURCE}/${product_id}/${CATALOG_CATEGORY_RESOURCE}`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_PRODUCTS}/${product_id}/${PrintfulApiResources.CATALOG_CATEGORIES}`,
       {
         ...options,
         searchParams,
@@ -131,38 +126,36 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async listCategories(options: Options = {}) {
-    return await this.request(
-      `${CATALOG_CATEGORY_RESOURCE}`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_CATEGORIES}`,
       options,
       ListCatalogCategoriesResponse,
     )
   }
 
-  @bound
-  @trace
-  async getCategory(category_id: number, options: Options = {}) {
-    return await this.request(
-      `${CATALOG_CATEGORY_RESOURCE}/${category_id}`,
+  async getCategory(categoryId: number, options: Options = {}) {
+    const category_id = InternalId.parse(categoryId)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_CATEGORIES}/${category_id}`,
       options,
       GetCatalogCategoryResponse,
     )
   }
 
-  @bound
-  @trace
   async getProductSizeGuide(
-    product_id: number,
-    params: GetProductSizeGuideSearchParams = {},
+    productId: number,
+    params: GetProductSizeGuideSearchInput = {},
     options: Options = {},
   ) {
-    const { locale, ...searchParams } =
-      GetProductSizeGuideSearchParams.parse(params)
+    const product_id = InternalId.parse(productId)
 
-    return await this.request(
-      `${CATALOG_PRODUCTS_RESOURCE}/${product_id}/${CATALOG_CATEGORY_RESOURCE}`,
+    const { locale, ...searchParams } =
+      GetProductSizeGuideSearchInput.parse(params)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_PRODUCTS}/${product_id}/sizes`,
       {
         ...options,
         locale,
@@ -172,18 +165,17 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async listProductPrices(
-    product_id: number,
+    productId: number,
     params: ListProductPricesSearchParams = {},
     options: Options = {},
   ) {
+    const product_id = InternalId.parse(productId)
     const { locale, ...searchParams } =
       ListProductPricesSearchParams.parse(params)
 
-    return await this.request(
-      `${CATALOG_PRODUCTS_RESOURCE}/${product_id}/prices`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_PRODUCTS}/${product_id}/prices`,
       {
         ...options,
         locale,
@@ -193,18 +185,18 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async listProductVariantPrices(
-    variant_id: number,
+    variantId: number,
     params: ListProductVariantPricesSearchParams = {},
     options: Options = {},
   ) {
+    const variant_id = InternalId.parse(variantId)
+
     const { locale, ...searchParams } =
       ListProductVariantPricesSearchParams.parse(params)
 
-    return await this.request(
-      `${CATALOG_VARIANTS_RESOURCE}/${variant_id}/prices`,
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_VARIANTS}/${variant_id}/prices`,
       {
         ...options,
         locale,
@@ -214,18 +206,18 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getProductBlankMockups(
-    product_id: number,
-    params: GetProductBlankMockupsSearchParams,
-    options: Options,
+    productId: number,
+    params: GetProductBlankMockupsSearchInput = {},
+    options: Options = {},
   ) {
-    const { locale, ...searchParams } =
-      GetProductBlankMockupsSearchParams.parse(params)
+    const product_id = InternalId.parse(productId)
 
-    return await this.request(
-      `${CATALOG_PRODUCTS_RESOURCE}/${product_id}/images`,
+    const { locale, ...searchParams } =
+      GetProductBlankMockupsSearchInput.parse(params)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_PRODUCTS}/${product_id}/images`,
       {
         ...options,
         locale,
@@ -235,39 +227,39 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getProductVariantBlankMockups(
-    variant_id: number,
-    params: GetVarianttBlankMockupsSearchParams,
-    options: Options,
+    variantId: number,
+    params: GetVariantBlankMockupsSearchInput = {},
+    options: Options = {},
   ) {
-    const { locale, ...searchParams } =
-      GetVarianttBlankMockupsSearchParams.parse(params)
+    const variant_id = InternalId.parse(variantId)
 
-    return await this.request(
-      `${CATALOG_VARIANTS_RESOURCE}/${variant_id}/images`,
+    const { locale, ...searchParams } =
+      GetVariantBlankMockupsSearchInput.parse(params)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_VARIANTS}/${variant_id}/images`,
       {
         ...options,
         locale,
         searchParams,
       },
-      GetVarianttBlankMockupsResponse,
+      GetVariantBlankMockupsResponse,
     )
   }
 
-  @bound
-  @trace
   async getProductMockups(
-    product_id: number,
-    params: GetProductMockupsSearchParams,
-    options: Options,
+    productId: number,
+    params: GetProductMockupsSearchInput = {},
+    options: Options = {},
   ) {
-    const { locale, ...searchParams } =
-      GetProductMockupsSearchParams.parse(params)
+    const product_id = InternalId.parse(productId)
 
-    return await this.request(
-      `${CATALOG_PRODUCTS_RESOURCE}/${product_id}/mockup-styles`,
+    const { locale, ...searchParams } =
+      GetProductMockupsSearchInput.parse(params)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_PRODUCTS}/${product_id}/mockup-styles`,
       {
         ...options,
         locale,
@@ -277,18 +269,18 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getProductMockupTemplates(
-    product_id: number,
-    params: GetProductMockupTemplatesSearchParams,
-    options: Options,
+    productId: number,
+    params: GetProductMockupTemplatesSearchInput = {},
+    options: Options = {},
   ) {
-    const { locale, ...searchParams } =
-      GetProductMockupTemplatesSearchParams.parse(params)
+    const product_id = InternalId.parse(productId)
 
-    return await this.request(
-      `${CATALOG_PRODUCTS_RESOURCE}/${product_id}/mockup-styles`,
+    const { locale, ...searchParams } =
+      GetProductMockupTemplatesSearchInput.parse(params)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_PRODUCTS}/${product_id}/mockup-templates`,
       {
         ...options,
         locale,
@@ -298,18 +290,18 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getProductStockAvailability(
-    product_id: number,
-    params: GetProductStockAvailabilitySearchParams = {},
+    productId: number,
+    params: GetProductStockAvailabilitySearchInput = {},
     options: Options = {},
   ) {
-    const { locale, ...searchParams } =
-      GetProductStockAvailabilitySearchParams.parse(params)
+    const product_id = InternalId.parse(productId)
 
-    return await this.request(
-      `${CATALOG_PRODUCTS_RESOURCE}/${product_id}/availability`,
+    const { locale, ...searchParams } =
+      GetProductStockAvailabilitySearchInput.parse(params)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_PRODUCTS}/${product_id}/availability`,
       {
         ...options,
         locale,
@@ -319,18 +311,18 @@ export class CatalogProductsService extends PrintfulApiService {
     )
   }
 
-  @bound
-  @trace
   async getProductVariantStockAvailability(
-    variant_id: number,
-    params: GetVariantStockAvailabilitySearchParams = {},
+    variantId: number,
+    params: GetVariantStockAvailabilitySearchInput = {},
     options: Options = {},
   ) {
-    const { locale, ...searchParams } =
-      GetVariantStockAvailabilitySearchParams.parse(params)
+    const variant_id = InternalId.parse(variantId)
 
-    return await this.request(
-      `${CATALOG_VARIANTS_RESOURCE}/${variant_id}/availability`,
+    const { locale, ...searchParams } =
+      GetVariantStockAvailabilitySearchInput.parse(params)
+
+    return await this.makeRequest(
+      `${PrintfulApiResources.CATALOG_VARIANTS}/${variant_id}/availability`,
       {
         ...options,
         locale,

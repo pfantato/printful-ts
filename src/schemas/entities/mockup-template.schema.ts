@@ -19,12 +19,12 @@ export const TemplateType = z.enum([
 export type TemplateType = z.infer<typeof TemplateType>
 
 export const MockupTemplates = z.object({
-  catalog_variant_ids: z.array(z.number()),
+  catalog_variant_ids: z.number().array(),
   placement: z.string(),
   technique: TechniqueKey,
   image_url: z.string().url(),
-  background_url: z.string().url().nullable(),
-  background_color: ColorValue.nullable(),
+  background_url: z.string().url().optional(),
+  background_color: ColorValue.optional(),
   template_width: z.number(),
   template_height: z.number(),
   print_area_width: z.number(),

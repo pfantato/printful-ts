@@ -14,9 +14,9 @@ export type OrderEstimationTaskStatus = z.infer<
 export const OrderEstimationTaskSummary = z.object({
   id: z.number(),
   status: OrderEstimationTaskStatus,
-  costs: Costs.nullable(),
-  retail_costs: RetailCosts.nullable(),
-  failure_reasons: z.array(z.string()).nullable(),
+  costs: Costs.optional(),
+  retail_costs: RetailCosts.optional(),
+  failure_reasons: z.string().array().optional(),
 })
 export type OrderEstimationTaskSummary = z.infer<
   typeof OrderEstimationTaskSummary

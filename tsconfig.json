@@ -1,18 +1,34 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "types": ["node"],
+    "strict": false,
+
     "declaration": true,
     "removeComments": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
-    "sourceMap": false,
+    "module": "ESNext",
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "sourceMap": true,
     "outDir": "./lib",
     "baseUrl": "./",
     "incremental": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "bundler",
     "paths": {
-      "@printful-ts/*": ["./src/*"]
+      "@printful-ts/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "test", "lib", "**/*spec.ts"]
+  "include": [
+    "./**/*",
+    "./**/*.json"
+  ],
+  "exclude": [
+    "node_modules",
+    "lib",
+    "tsconfig.json",
+    "tsconfig-build.json"
+  ]
 }

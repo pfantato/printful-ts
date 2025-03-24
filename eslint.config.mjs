@@ -1,4 +1,5 @@
 import typescriptEslint from '@typescript-eslint/eslint-plugin'
+import vitest from 'eslint-plugin-vitest'
 import globals from 'globals'
 import tsParser from '@typescript-eslint/parser'
 import path from 'node:path'
@@ -19,12 +20,25 @@ export default [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'eslint-config-prettier',
+    'plugin:import/recommended',
+    'plugin:import/typescript',
   ),
   {
     plugins: {
       '@typescript-eslint': typescriptEslint,
     },
-
+  },
+  {
+    settings: {
+      'import/resolver': {
+        // You will also need to install and configure the TypeScript resolver
+        // See also https://github.com/import-js/eslint-import-resolver-typescript#configuration
+        typescript: true,
+        node: true,
+      },
+    },
+  },
+  {
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -34,7 +48,25 @@ export default [
       ecmaVersion: 12,
       sourceType: 'module',
     },
-    rules: {},
+  },
+  {
+    rules: {
+      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+    },
+  },
+  {
+    files: ['./src/**/*.(spec|test).ts'],
+    plugins: {
+      vitest,
+    },
+    rules: {
+      ...vitest.configs.recommended.rules,
+    },
+    languageOptions: {
+      globals: {
+        ...vitest.environments.env.globals,
+      },
+    },
   },
   {
     ignores: ['node_modules', 'lib/*'],

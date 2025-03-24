@@ -2,41 +2,51 @@ import { z } from 'zod'
 
 import {
   HateoasLink,
-  Limit,
-  Offset,
   Paging,
   PagingHateoasLinks,
-  Localized,
+  PagingSearchInput,
+  PagingSearchParams,
+  WithLocale,
 } from '@printful-ts/schemas/common'
 import {
   MockupTemplates,
   SellingRegionName,
 } from '@printful-ts/schemas/entities'
-import {
-  arrayToQueryString,
-  numberToQueryString,
-} from '@printful-ts/schemas/utils'
+import { ArrayToString, StringToArray } from '@printful-ts/schemas/utils'
 
-export const GetProductMockupTemplatesSearchParams = Localized(
-  z.object({
-    placements: z.array(z.string()).transform(arrayToQueryString).optional(),
+export const GetProductMockupTemplatesSearchInput = z
+  .object({
+    placements: ArrayToString(z.string()).optional(),
     selling_region_name: SellingRegionName.default(
       SellingRegionName.Enum.worldwide,
     ).optional(),
-    offset: Offset.transform(numberToQueryString).optional(),
-    limit: Limit.transform(numberToQueryString).optional(),
-  }),
-)
-export type GetProductMockupTemplatesSearchParams = z.infer<
+  })
+  .merge(WithLocale)
+  .merge(PagingSearchInput)
+export type GetProductMockupTemplatesSearchInput = z.input<
+  typeof GetProductMockupTemplatesSearchInput
+>
+export const GetProductMockupTemplatesSearchParams = z
+  .object({
+    placements: StringToArray.optional(),
+    selling_region_name: SellingRegionName.default(
+      SellingRegionName.Enum.worldwide,
+    ).optional(),
+  })
+  .merge(WithLocale)
+  .merge(PagingSearchParams)
+export type GetProductMockupTemplatesSearchParams = z.input<
   typeof GetProductMockupTemplatesSearchParams
 >
 
 export const GetProductMockupTemplatesResponse = z.object({
-  data: z.array(MockupTemplates),
+  data: MockupTemplates.array(),
   paging: Paging,
-  _links: PagingHateoasLinks.extend({
-    product: HateoasLink,
-  }),
+  _links: PagingHateoasLinks.merge(
+    z.object({
+      product: HateoasLink,
+    }),
+  ),
 })
 export type GetProductMockupTemplatesResponse = z.infer<
   typeof GetProductMockupTemplatesResponse

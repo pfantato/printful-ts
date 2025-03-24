@@ -4,8 +4,8 @@ import { TechniqueKey } from './technique.schema'
 
 export const CatalogOption = z.object({
   name: z.string(),
-  techniques: z.array(TechniqueKey),
+  techniques: TechniqueKey.array(),
   type: z.string(),
-  values: z.array(z.unknown()),
+  values: z.unknown().array(),
 })
 export type CatalogOption = z.infer<typeof CatalogOption>

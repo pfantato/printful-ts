@@ -5,12 +5,29 @@ import {
   ReportType,
   StoreStatistics,
 } from '@printful-ts/schemas/entities'
-import { arrayToQueryString } from '@printful-ts/schemas/utils'
+import { ArrayToString, StringToArray } from '@printful-ts/schemas/utils'
+
+export const GetStoreStatisticsSearchInput = z
+  .object({
+    date_from: z.string().date(),
+    date_to: z.string().date(),
+    report_types: ArrayToString(ReportType),
+    currency: Currency.optional(),
+  })
+  .required({
+    report_types: true,
+    date_from: true,
+    date_to: true,
+  })
+
+export type GetStoreStatisticsSearchInput = z.input<
+  typeof GetStoreStatisticsSearchInput
+>
 
 export const GetStoreStatisticsSearchParams = z.object({
-  date_from: z.string().datetime(),
-  date_to: z.string().datetime(),
-  report_types: z.array(ReportType).transform(arrayToQueryString),
+  date_from: z.string().date(),
+  date_to: z.string().date(),
+  report_types: StringToArray.pipe(ReportType.array()),
   currency: Currency.optional(),
 })
 

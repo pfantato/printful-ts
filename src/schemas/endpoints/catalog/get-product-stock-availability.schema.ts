@@ -7,7 +7,8 @@ import {
   Offset,
   Paging,
   PagingHateoasLinks,
-  Localized,
+  PagingSearchInput,
+  WithLocale,
 } from '@printful-ts/schemas/common'
 import {
   SellingRegionName,
@@ -15,31 +16,48 @@ import {
   VariantStockAvailability,
 } from '@printful-ts/schemas/entities'
 import {
-  arrayToQueryString,
-  numberToQueryString,
+  ArrayToString,
+  StringToArray,
+  StringToNumber,
 } from '@printful-ts/schemas/utils'
 
-export const GetProductStockAvailabilitySearchParams = Localized(
-  z.object({
-    techniques: z.array(TechniqueKey).transform(arrayToQueryString).optional(),
+export const GetProductStockAvailabilitySearchInput = z
+  .object({
+    techniques: ArrayToString(TechniqueKey.optional()).optional(),
     selling_region_name: SellingRegionName.default(
       SellingRegionName.Enum.worldwide,
     ).optional(),
-    limit: Limit.transform(numberToQueryString).optional(),
-    offset: Offset.transform(numberToQueryString).optional(),
-  }),
-)
-export type GetProductStockAvailabilitySearchParams = z.infer<
+  })
+  .merge(WithLocale)
+  .merge(PagingSearchInput)
+
+export type GetProductStockAvailabilitySearchInput = z.input<
+  typeof GetProductStockAvailabilitySearchInput
+>
+
+export const GetProductStockAvailabilitySearchParams = z
+  .object({
+    techniques: StringToArray.pipe(TechniqueKey.array().optional()).optional(),
+    selling_region_name: SellingRegionName.default(
+      SellingRegionName.Enum.worldwide,
+    ).optional(),
+    limit: StringToNumber.pipe(Limit).optional(),
+    offset: StringToNumber.pipe(Offset).optional(),
+  })
+  .merge(WithLocale)
+export type GetProductStockAvailabilitySearchParams = z.input<
   typeof GetProductStockAvailabilitySearchParams
 >
 
 export const GetProductStockAvailabilityResponse = z.object({
-  data: z.array(VariantStockAvailability),
+  data: VariantStockAvailability.array(),
   paging: Paging,
   filter_settings: FilterSettings,
-  _links: PagingHateoasLinks.extend({
-    product: HateoasLink,
-  }),
+  _links: PagingHateoasLinks.merge(
+    z.object({
+      product: HateoasLink,
+    }),
+  ),
 })
 export type GetProductStockAvailabilityResponse = z.infer<
   typeof GetProductStockAvailabilityResponse

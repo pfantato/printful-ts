@@ -8,11 +8,13 @@ import {
 import { ProductVariant } from '@printful-ts/schemas/entities'
 
 export const ListProductVariantsResponse = z.object({
-  data: z.array(ProductVariant),
+  data: ProductVariant.array(),
   paging: Paging,
-  _links: PagingHateoasLinks.extend({
-    product_details: HateoasLink,
-  }),
+  _links: PagingHateoasLinks.merge(
+    z.object({
+      product_details: HateoasLink,
+    }),
+  ),
 })
 export type ListProductVariantsResponse = z.infer<
   typeof ListProductVariantsResponse

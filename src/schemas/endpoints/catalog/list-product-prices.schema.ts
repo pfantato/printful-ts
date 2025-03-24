@@ -4,7 +4,7 @@ import {
   HateoasLink,
   Paging,
   PagingHateoasLinks,
-  Localized,
+  WithLocale,
 } from '@printful-ts/schemas/common'
 import {
   Currency,
@@ -12,22 +12,25 @@ import {
   SellingRegionName,
 } from '@printful-ts/schemas/entities'
 
-export const ListProductPricesSearchParams = Localized(
-  z.object({
+export const ListProductPricesSearchParams = z
+  .object({
     selling_region_name: SellingRegionName.optional(),
     currency: Currency.optional(),
-  }),
-)
+  })
+  .merge(WithLocale)
+
 export type ListProductPricesSearchParams = z.infer<
   typeof ListProductPricesSearchParams
 >
 
 export const ListProductPricesResponse = z.object({
-  data: z.array(ProductPrice),
+  data: ProductPrice.array(),
   paging: Paging,
-  _links: PagingHateoasLinks.extend({
-    product_details: HateoasLink,
-  }),
+  _links: PagingHateoasLinks.merge(
+    z.object({
+      product_details: HateoasLink,
+    }),
+  ),
 })
 export type ListProductPricesResponse = z.infer<
   typeof ListProductPricesResponse

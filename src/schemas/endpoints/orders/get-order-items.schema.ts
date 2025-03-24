@@ -2,29 +2,44 @@ import { z } from 'zod'
 
 import {
   HateoasLink,
-  Limit,
-  Offset,
   PagingHateoasLinks,
-  WithStoreId,
+  PagingSearchInput,
+  PagingSearchParams,
+  StoreIdSchema,
 } from '@printful-ts/schemas/common'
 import { OrderItem } from '@printful-ts/schemas/entities'
-import { arrayToQueryString } from '@printful-ts/schemas/utils'
+import {
+  StringToArray,
+  ArrayToString,
+  NumberToString,
+} from '@printful-ts/schemas/utils'
 
-export const GetOrderItemsSearchParams = WithStoreId(
-  z.object({
-    type: z.array(z.string()).transform(arrayToQueryString).optional(),
-    limit: Limit.optional(),
-    offset: Offset.optional(),
-  }),
-)
-export type GetOrderItemsSearchParams = z.infer<
-  typeof GetOrderItemsSearchParams
+export const ListOrderItemsSearchInput = z
+  .object({
+    type: ArrayToString(z.string()).optional(),
+    store_id: NumberToString.optional(),
+  })
+  .merge(StoreIdSchema)
+  .merge(PagingSearchInput)
+export type ListOrderItemsSearchInput = z.input<
+  typeof ListOrderItemsSearchInput
+>
+export const ListOrderItemsSearchParams = z
+  .object({
+    type: StringToArray.optional(),
+  })
+  .merge(PagingSearchParams)
+
+export type ListOrderItemsSearchParams = z.input<
+  typeof ListOrderItemsSearchParams
 >
 
-export const GetOrderItemsResponse = z.object({
-  data: z.array(OrderItem),
-  _links: PagingHateoasLinks.extend({
-    order: HateoasLink,
-  }),
+export const ListOrderItemsResponse = z.object({
+  data: OrderItem.array(),
+  _links: PagingHateoasLinks.merge(
+    z.object({
+      order: HateoasLink,
+    }),
+  ),
 })
-export type GetOrderItemsResponse = z.infer<typeof GetOrderItemsResponse>
+export type ListOrderItemsResponse = z.infer<typeof ListOrderItemsResponse>

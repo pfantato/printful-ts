@@ -1,27 +1,37 @@
 import { z } from 'zod'
 
 import {
-  Limit,
-  Offset,
   Paging,
   PagingHateoasLinks,
-  WithStoreId,
+  PagingSearchInput,
+  PagingSearchParams,
+  StoreIdSchema,
 } from '@printful-ts/schemas/common'
 import { WarehouseProduct } from '@printful-ts/schemas/entities'
 
-export const ListWarehouseProductsSearchParams = WithStoreId(
-  z.object({
+export const ListWarehouseProductsSearchInput = z
+  .object({
     filter: z.string().optional(),
-    limit: Limit.optional(),
-    offset: Offset.optional(),
-  }),
-)
-export type ListWarehouseProductsSearchParams = z.infer<
+  })
+  .merge(PagingSearchInput)
+  .merge(StoreIdSchema)
+
+export type ListWarehouseProductsSearchInput = z.input<
+  typeof ListWarehouseProductsSearchInput
+>
+
+export const ListWarehouseProductsSearchParams = z
+  .object({
+    filter: z.string().optional(),
+  })
+  .merge(PagingSearchParams)
+
+export type ListWarehouseProductsSearchParams = z.input<
   typeof ListWarehouseProductsSearchParams
 >
 
 export const ListWarehouseProductsResponse = z.object({
-  data: z.array(WarehouseProduct),
+  data: WarehouseProduct.array(),
   paging: Paging,
   _links: PagingHateoasLinks,
 })

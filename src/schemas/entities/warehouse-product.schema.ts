@@ -32,9 +32,9 @@ export const WarehouseProductVariant = z.object({
   name: z.string(),
   sku: z.string(),
   image_url: z.string().url(),
-  retail_prie: z.string(),
+  retail_price: z.string(),
   quantity: z.number(),
-  stock_location: z.array(StockLocation),
+  stock_location: StockLocation.array(),
   dimensions: Dimensions,
   _links: z.object({
     self: HateoasLink,
@@ -48,7 +48,7 @@ export const WarehouseProduct = z.object({
   status: WarehouseProductStatus,
   currency: Currency,
   image_url: z.string().url(),
-  variants: z.array(WarehouseProductVariant),
+  variants: WarehouseProductVariant.array(),
   _links: z.object({
     self: HateoasLink,
     warehouse_variants: HateoasLink,

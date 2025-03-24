@@ -11,8 +11,8 @@ export type ShippingRateShipmentItems = z.infer<
 >
 
 export const ShippingRateShipment = z.object({
-  departure_country: z.string().nullable(),
-  shipment_items: z.array(ShippingRateShipmentItems),
+  departure_country: z.string().optional(),
+  shipment_items: ShippingRateShipmentItems.array(),
   custom_fees_possible: z.boolean(),
 })
 export type ShippingRateShipment = z.infer<typeof ShippingRateShipment>
@@ -26,6 +26,6 @@ export const ShippingRateCalculation = z.object({
   max_delivery_days: z.number().optional(),
   min_delivery_date: z.string().date().optional(),
   max_delivery_date: z.string().date().optional(),
-  shipments: z.array(ShippingRateShipment),
+  shipments: ShippingRateShipment.array(),
 })
 export type ShippingRateCalculation = z.infer<typeof ShippingRateCalculation>

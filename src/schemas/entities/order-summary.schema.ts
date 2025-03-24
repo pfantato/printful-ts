@@ -16,11 +16,13 @@ export const OrderSummary = Order.pick({
   costs: true,
   retail_costs: true,
   order_items: true,
-}).extend({
-  _links: z.object({
-    self: HateoasLink,
-    order_items: HateoasLink,
-    shipments: HateoasLink,
+}).merge(
+  z.object({
+    _links: z.object({
+      self: HateoasLink,
+      order_items: HateoasLink,
+      shipments: HateoasLink,
+    }),
   }),
-})
+)
 export type OrderSummary = z.infer<typeof OrderSummary>

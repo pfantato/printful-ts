@@ -16,3 +16,11 @@ jobs:
   test:
     uses: ./.github/workflows/test-coverage.yml
     secrets: inherit
+
+  uploads:
+    needs: test
+    uses: ./.github/workflows/upload-codecov.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    with:
+      clover-path: ./coverage/clover.xml

@@ -44,12 +44,3 @@ jobs:
         with:
           name: coverage
           path: ./coverage
-
-  uploads:
-    needs: tests
-    if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/upload-codecov.yml
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    with:
-      clover-path: ./coverage/clover.xml

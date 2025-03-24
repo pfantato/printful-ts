@@ -9,15 +9,22 @@ on:
 
 jobs:
   test-coverage:
+    uses: ./.github/workflows/reusable/npm-ci.yml
+
+  run-tests:
+    needs: test-coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/download-artifact@v4
         with:
-          node-version: 20
+          name: node_modules
 
-      - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: .vitest
+          key: vitest-${{ runner.os }}-${{ hashFiles('**/*.ts') }}
 
       - run: npm run test:coverage
 

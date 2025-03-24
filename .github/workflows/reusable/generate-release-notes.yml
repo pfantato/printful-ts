@@ -18,6 +18,14 @@ jobs:
           echo "# Release Notes\n" > RELEASE_NOTES.md
           git log -1 --pretty=format:"%h - %s (%an)" >> RELEASE_NOTES.md
 
+      - name: Commit Release Notes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add RELEASE_NOTES.md
+          git commit -m "chore: update release notes [skip ci]" || echo "No changes to commit"
+          git push
+
       - uses: actions/upload-artifact@v4
         with:
           name: release-notes

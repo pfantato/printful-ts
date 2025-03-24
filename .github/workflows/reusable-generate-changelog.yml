@@ -1,0 +1,25 @@
+name: Reusable - Generate Changelog
+
+on:
+  workflow_call:
+    outputs:
+      changelog-path:
+        description: 'Changelog markdown path'
+        value: './CHANGELOG.md'
+
+jobs:
+  generate-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Changelog
+        id: changelog
+        uses: heinrichreimer/action-github-changelog-generator@v2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: ./CHANGELOG.md

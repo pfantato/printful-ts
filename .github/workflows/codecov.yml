@@ -1,10 +1,12 @@
-name: Test and Coverage
+name: Test Coverage
 
 on:
-  push:
-  pull_request:
+  workflow_call:
 
 jobs:
+  run-test-coverage:
+    uses: ./.github/workflows/test-coverage.yml
+
   test:
     runs-on: ubuntu-latest
 
@@ -13,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
 
@@ -24,14 +26,9 @@ jobs:
         run: npm run test:coverage
 
       - name: Upload coverage reports to Codecov
+        if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'pull_request') }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/clover.xml
           fail_ci_if_error: true
-
-      - name: 🔧 Commit badge change
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: 'chore: add Codecov badge to README [skip ci]'
-          file_pattern: 'README.md'

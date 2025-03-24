@@ -1,0 +1,28 @@
+name: Reusable - Upload Codecov
+
+on:
+  workflow_call:
+    inputs:
+      clover-path:
+        required: true
+        type: string
+    secrets:
+      CODECOV_TOKEN:
+        required: true
+
+jobs:
+  upload-codecov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ inputs.clover-path }}
+          fail_ci_if_error: true

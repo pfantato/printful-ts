@@ -2,11 +2,14 @@
   "name": "@pfantato/printful-ts",
   "version": "0.0.9",
   "description": "Typescript SDK to integrate with Printful",
-  "main": "dist/index.js",
-  "types": "lib/index.d.ts",
   "type": "module",
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/esm/index.js",
+  "types": "./lib/esm/index.d.ts",
   "scripts": {
-    "build": "rm -rf lib && tsc",
+    "build": "npm run build:esm && npm run build:cjs",
+    "build:esm": "rm -rf lib/esm && tsc --project tsconfig.json",
+    "build:cjs": "rm -rf lib/cjs && tsc --project tsconfig-cjs.json",
     "lint": "eslint --ext .js,.ts .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "test": "npx vitest --typecheck",
@@ -16,8 +19,7 @@
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
-    "publish": "npm publish --access=public",
-    "update-mock": "npx msw-auto-mock ./files/printful-openapi.json -o ./tests/mocks/printful --typescript"
+    "publish": "npm publish --access=public"
   },
   "repository": {
     "type": "git",
@@ -41,7 +43,11 @@
     "js-sdk",
     "ts-sdk"
   ],
-  "author": "Patrick Fantato <me@pfantato.space>",
+  "author": {
+    "email": "me@pfantato.space",
+    "name": "Patrick Fantato",
+    "url": "https://github.com/pfantato"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/pfantato/printful-ts/issues"
@@ -80,9 +86,10 @@
     "zod-schema-faker": "^1.5.2",
     "zod-validation-error": "^3.4.0"
   },
-  "msw": {
-    "workerDirectory": [
-      "./public"
-    ]
+  "exports": {
+    ".": {
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.js"
+    }
   }
 }

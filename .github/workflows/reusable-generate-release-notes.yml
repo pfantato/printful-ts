@@ -1,0 +1,24 @@
+name: Reusable - Generate Release Notes
+
+on:
+  workflow_call:
+    outputs:
+      notes-path:
+        description: 'Release notes file'
+        value: './RELEASE_NOTES.md'
+
+jobs:
+  generate-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Release Notes
+        run: |
+          echo "# Release Notes\n" > RELEASE_NOTES.md
+          git log -1 --pretty=format:"%h - %s (%an)" >> RELEASE_NOTES.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: ./RELEASE_NOTES.md

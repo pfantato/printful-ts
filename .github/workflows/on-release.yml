@@ -9,7 +9,6 @@ jobs:
     uses: ./.github/workflows/npm-ci.yml
 
   publish:
-    needs: install
     uses: ./.github/workflows/publish-npm.yml
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

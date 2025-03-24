@@ -35,7 +35,6 @@ jobs:
         run: npm run build
 
       - name: 📦 Upload Compiled Artifacts
-        if: steps.build-cache.outputs.cache-hit != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: dist

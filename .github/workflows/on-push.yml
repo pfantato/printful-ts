@@ -14,7 +14,14 @@ jobs:
 
   node-modules:
     needs: install
-    uses: ./.github/workflows/upload-node-modules.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📁 Upload Node Modules
+        uses: actions/upload-artifact@v4
+        with:
+          name: node_modules
+          path: node_modules
+          retention-days: 5
 
   test:
     needs: node-modules

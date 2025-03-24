@@ -32,21 +32,12 @@ jobs:
           else
             echo "type=patch" >> $GITHUB_OUTPUT
 
-      - name: 🚀 Setup Node.js
+      - name: 📦 Setup Node and Install Dependencies
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: 🔹 Cache Dependencies
-        id: node-cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
-      - name: ♻️ Install Dependencies
-        if: steps.node-cache.outputs.cache-hit != 'true'
-        run: npm ci
+      - run: npm ci
 
       - name: 🚀 Run standard-version
         run: npx standard-version --release-as ${{ steps.version.outputs.type }} --skip.commit --skip.tag
@@ -59,6 +50,6 @@ jobs:
 
       - name: 🔖 Create and Push Tag
         run: |
-          TAG="v$(node -p \"require('./package.json').version\")"
+          TAG="v$(node -p 'require(\"./package.json\").version')"
           git tag "$TAG"
           git push origin "$TAG"

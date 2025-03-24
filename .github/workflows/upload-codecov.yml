@@ -32,3 +32,9 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ inputs.clover-path }}
           fail_ci_if_error: ${{ inputs.fail_ci_if_error }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

@@ -10,9 +10,29 @@ on:
 
 jobs:
   install:
-    uses: ./.github/workflows/npm-ci.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
 
-  node-modules:
+      - name: 🚀 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 🔹 Cache Dependencies
+        id: node-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: ♻️ Install Dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+
+  upload:
     needs: install
     runs-on: ubuntu-latest
     steps:
@@ -24,9 +44,9 @@ jobs:
           retention-days: 5
 
   test:
-    needs: node-modules
+    needs: upload
     uses: ./.github/workflows/test-coverage.yml
 
   build:
-    needs: node-modules
+    needs: upload
     uses: ./.github/workflows/build.yml

@@ -5,10 +5,7 @@ on:
     types: [published]
 
 jobs:
-  install:
-    uses: ./.github/workflows/npm-ci.yml
-
   publish:
     uses: ./.github/workflows/publish-npm.yml
     secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NPM_TOKEN: ${ secrets.NPM_TOKEN }

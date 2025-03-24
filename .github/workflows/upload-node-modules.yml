@@ -15,20 +15,8 @@ jobs:
       - name: 💾 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🚀 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: 🔹 Check Dependency Cache
-        id: cache-check
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
-      - name: 📁 Upload Node Modules
-        if: steps.cache-check.outputs.cache-hit != 'true'
+      - name: 📦 Upload node_modules if exists
+        if: hashFiles('node_modules/**') != ''
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact-name }}

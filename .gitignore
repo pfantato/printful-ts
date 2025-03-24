@@ -89,3 +89,5 @@ typings/
 
 # Build
 lib/
+
+.DS_Store

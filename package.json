@@ -1,6 +1,6 @@
 {
   "name": "@pfantato/printful-ts",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Typescript SDK to integrate with Printful",
   "type": "module",
   "main": "lib/index.cjs",

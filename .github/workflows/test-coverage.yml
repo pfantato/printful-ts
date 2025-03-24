@@ -19,12 +19,26 @@ jobs:
         with:
           node-version: 20
 
-      - name: 📂 Download Node Modules
-        uses: actions/download-artifact@v4
+      - name: 🔹 Cache Dependencies
+        id: node-cache
+        uses: actions/cache@v4
         with:
-          name: node_modules
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: ♻️ Install Dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 🧰 Cache Vitest Results
+        id: tests-cache
+        uses: actions/cache@v4
+        with:
+          path: coverage
+          key: coverage-${{ runner.os }}-${{ hashFiles('**/*.ts') }}
 
       - name: 🔬 Run Unit Tests with Coverage
+        if: steps.tests-cache.outputs.cache-hit != 'true'
         run: npm run test:coverage
 
       - name: 📊 Upload Coverage Reports

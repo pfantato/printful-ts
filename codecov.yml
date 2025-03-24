@@ -1,0 +1,24 @@
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  status:
+    project:
+      default:
+        target: 90% # Minimum project-wide coverage you want
+        threshold: 2% # Allowable drop before failing CI
+        base: auto
+    patch:
+      default:
+        target: 90% # New code (patches) must meet this
+        threshold: 1%
+
+comment:
+  layout: 'reach, diff, flags, files'
+  behavior: default
+  require_changes: true # Only comment when coverage changes
+
+ignore:
+  - '**/*.test.ts'
+  - '**/*.spec.ts'
+  - '**/__tests__/**'

@@ -12,10 +12,14 @@ jobs:
   install:
     uses: ./.github/workflows/npm-ci.yml
 
-  test:
+  node-modules:
     needs: install
+    uses: ./.github/workflows/upload-node-modules.yml
+
+  test:
+    needs: node-modules
     uses: ./.github/workflows/test-coverage.yml
 
   build:
-    needs: install
+    needs: node-modules
     uses: ./.github/workflows/build.yml

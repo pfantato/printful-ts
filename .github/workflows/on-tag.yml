@@ -6,10 +6,19 @@ on:
       - 'v*.*.*'
 
 jobs:
+  install:
+    uses: ./.github/workflows/npm-ci.yml
+
+  node-modules:
+    needs: install
+    uses: ./.github/workflows/upload-node-modules.yml
+
   test:
+    needs: node-modules
     uses: ./.github/workflows/test-coverage.yml
 
   build:
+    needs: node-modules
     uses: ./.github/workflows/build.yml
 
   changelog:
@@ -19,10 +28,11 @@ jobs:
     uses: ./.github/workflows/generate-release-notes.yml
 
   release:
-    needs: [build, test, changelog, release-notes]
+    needs: [build, changelog, release-notes]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v4
         with:
@@ -36,7 +46,7 @@ jobs:
         with:
           name: release-notes
 
-      - name: Create GitHub Release
+      - name: 🚀 Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: ./lib/**

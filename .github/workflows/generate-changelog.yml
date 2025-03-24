@@ -31,5 +31,5 @@ jobs:
       - name: 📁 Upload Changelog
         uses: actions/upload-artifact@v4
         with:
-          name: changelog-${{ github.run_id }}
+          name: changelog
           path: ./CHANGELOG.md

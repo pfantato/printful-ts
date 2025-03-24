@@ -1,0 +1,36 @@
+name: Upload Node Modules
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        required: false
+        default: node_modules
+        type: string
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🚀 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 🔹 Check Dependency Cache
+        id: cache-check
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: 📁 Upload Node Modules
+        if: steps.cache-check.outputs.cache-hit != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: node_modules
+          retention-days: 5

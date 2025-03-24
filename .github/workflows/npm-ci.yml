@@ -4,8 +4,8 @@ on:
   workflow_call:
     outputs:
       node-modules-path:
-        description: 'Node modules output directory'
-        value: './node_modules'
+        description: "Node modules output directory"
+        value: "./node_modules"
 
 jobs:
   install:
@@ -29,11 +29,3 @@ jobs:
       - name: ♻️ Install Dependencies
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
-
-      - name: 📁 Upload Node Modules
-        if: steps.node-cache.outputs.cache-hit != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: node_modules
-          path: node_modules
-          retention-days: 5

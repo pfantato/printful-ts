@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "strict": false,
-
     "declaration": true,
     "removeComments": true,
     "allowSyntheticDefaultImports": true,
@@ -12,7 +13,6 @@
     "sourceMap": true,
     "outDir": "./lib",
     "baseUrl": "./",
-    "incremental": true,
     "resolveJsonModule": true,
     "moduleResolution": "bundler",
     "paths": {

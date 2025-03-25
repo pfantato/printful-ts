@@ -1,4 +1,5 @@
 name: Build
+description: Build the package and upload it to artifacts
 
 on:
   workflow_call:

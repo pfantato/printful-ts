@@ -1,4 +1,5 @@
-name: On GitHub Release
+name: Publish package
+description: Publish npm package on GH Release
 
 on:
   release:

@@ -1,4 +1,5 @@
 name: Test Coverage
+description: Run tests with coverage and upload reports to artifacts
 
 on:
   workflow_call:

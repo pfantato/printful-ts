@@ -1,4 +1,5 @@
-name: Upload Codecov
+name: Codecov
+description: Upload test coverage to Codecov
 
 on:
   workflow_call:

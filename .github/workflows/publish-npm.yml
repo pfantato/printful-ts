@@ -1,4 +1,5 @@
-name: Publish NPM
+name: Publish to npm
+description: Publishes the package to npm registry
 
 on:
   workflow_call:
@@ -7,8 +8,17 @@ on:
         required: true
 
 jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  test:
+    uses: ./.github/workflows/test-coverage.yml
+    secrets: inherit
+
   publish:
     runs-on: ubuntu-latest
+    needs: [build, test]
     steps:
       - name: 💾 Checkout Repository
         uses: actions/checkout@v4

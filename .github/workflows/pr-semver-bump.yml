@@ -50,6 +50,6 @@ jobs:
 
       - name: 🔖 Create and Push Tag
         run: |
-          TAG="v$(node -p 'require(\"./package.json\").version')"
-          git tag "$TAG"
-          git push origin "$TAG"
+          TAG=$(node -p 'require("./package.json").version')
+          git tag "v$TAG"
+          git push origin "v$TAG"

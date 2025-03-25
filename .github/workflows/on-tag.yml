@@ -1,4 +1,5 @@
-name: On Tag (Release)
+name: GitHub Release
+description: Create a GitHub release when pushing a semantic versioned tag
 
 on:
   push:
@@ -39,10 +40,6 @@ jobs:
     needs: setup
     uses: ./.github/workflows/test-coverage.yml
 
-  build:
-    needs: setup
-    uses: ./.github/workflows/build.yml
-
   changelog:
     uses: ./.github/workflows/generate-changelog.yml
 
@@ -50,7 +47,7 @@ jobs:
     uses: ./.github/workflows/generate-release-notes.yml
 
   release:
-    needs: [build, changelog, release-notes]
+    needs: [changelog, release-notes]
     runs-on: ubuntu-latest
     steps:
       - name: 💾 Checkout Repository
@@ -59,6 +56,28 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: dist
+
+      # - name: 🔹 Cache Dependencies
+      #   id: node-cache
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: node_modules
+      #     key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      # - name: ♻️ Install Dependencies
+      #   if: steps.node-cache.outputs.cache-hit != 'true'
+      #   run: npm ci
+
+      # - name: 🧰 Cache Build Output
+      #   id: build-cache
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: lib
+      #     key: build-${{ runner.os }}-${{ hashFiles('tsup.config.ts', 'src/**/*.ts') }}
+
+      # - name: ⚙️ Compile SDK
+      #   if: steps.build-cache.outputs.cache-hit != 'true'
+      #   run: npm run build
 
       - uses: actions/download-artifact@v4
         with:

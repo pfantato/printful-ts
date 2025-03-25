@@ -1,4 +1,5 @@
-name: PR Semantic Version Bump
+name: Semantic Versioning
+description: Bump's version on PR merged to main
 
 on:
   pull_request:
@@ -32,12 +33,13 @@ jobs:
             echo "type=patch" >> $GITHUB_OUTPUT
           fi
 
-      - name: 📦 Setup Node and Install Dependencies
+      - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: npm ci
+      - name: 📥 Install Dependencies
+        run: npm ci
 
       - name: 🚀 Run standard-version
         run: npx standard-version --release-as ${{ steps.version.outputs.type }} --skip.commit --skip.tag

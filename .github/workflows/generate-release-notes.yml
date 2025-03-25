@@ -1,11 +1,12 @@
 name: Generate Release Notes
+description: Generate release notes based on git messages
 
 on:
   workflow_call:
     outputs:
       notes-path:
-        description: "Release notes file"
-        value: "./RELEASE_NOTES.md"
+        description: 'Release notes file'
+        value: './RELEASE_NOTES.md'
 
 jobs:
   notes:

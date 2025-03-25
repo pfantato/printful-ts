@@ -1,0 +1,37 @@
+name: Create semantic versioning tag
+description: Create and push semantic versioning tag on push to main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 💾 Checkout main branch
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Git User
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: 🧪 Validate it's a version bump
+        id: check
+        run: |
+          LAST_COMMIT=$(git log -1 --pretty=%B)
+          echo "Last commit: $LAST_COMMIT"
+          if [[ "$LAST_COMMIT" != *"chore(release): bump version"* ]]; then
+            echo "❌ Not a version bump commit. Skipping tag."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔖 Create and Push Tag
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          git tag "v$VERSION"
+          git push origin "v$VERSION"

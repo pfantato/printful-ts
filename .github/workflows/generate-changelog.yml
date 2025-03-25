@@ -1,11 +1,12 @@
 name: Generate Changelog
+description: Generates a changelog based on commit messages
 
 on:
   workflow_call:
     outputs:
       changelog-path:
-        description: "Changelog markdown path"
-        value: "./CHANGELOG.md"
+        description: 'Changelog markdown path'
+        value: './CHANGELOG.md'
 
 jobs:
   changelog:

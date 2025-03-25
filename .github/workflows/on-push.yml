@@ -1,4 +1,5 @@
-name: On Push
+name: Test and build
+description: Run tests and build the project to validate the code when pushing to a branch
 
 on:
   push:
@@ -9,10 +10,6 @@ on:
       - 'RELEASE_NOTES.md'
 
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-
   test:
     uses: ./.github/workflows/test-coverage.yml
     secrets: inherit
@@ -24,3 +21,8 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
       clover-path: ./coverage/clover.xml
+
+  build:
+    needs: test
+    uses: ./.github/workflows/build.yml
+    secrets: inherit

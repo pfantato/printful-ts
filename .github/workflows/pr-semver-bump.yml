@@ -42,14 +42,27 @@ jobs:
       - name: 🚀 Run standard-version
         run: npx standard-version --release-as ${{ steps.version.outputs.type }} --skip.commit --skip.tag
 
-      - name: 💬 Commit and Push Bumped Version
+      - name: 🆕 Create Version Branch
+        id: version_branch
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "branch=release/v$VERSION" >> $GITHUB_OUTPUT
+          git checkout -b release/v$VERSION
+
+      - name: 💬 Commit and Push to Release Branch
         run: |
           git add package.json package-lock.json CHANGELOG.md
           git commit -m "chore(release): bump version [skip ci]"
-          git push
+          git push origin release/v${{ steps.version_branch.outputs.version }}
 
-      - name: 🔖 Create and Push Tag
-        run: |
-          TAG=$(node -p 'require("./package.json").version')
-          git tag "v$TAG"
-          git push origin "v$TAG"
+      - name: 📬 Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: ${{ steps.version_branch.outputs.branch }}
+          title: 'chore(release): bump version to v${{ steps.version_branch.outputs.version }}'
+          body: |
+            This PR was automatically generated after merging a PR to `main`.
+            It bumps the version using conventional commits via `standard-version`.

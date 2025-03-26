@@ -62,6 +62,7 @@ jobs:
         run: |
           git add package.json package-lock.json CHANGELOG.md
           git commit -m "chore(release): bump version [skip ci]"
+          git fetch origin
           git push --force-with-lease origin release/v${{ steps.version_branch.outputs.version }}
 
       - name: 📬 Create Pull Request

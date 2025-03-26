@@ -43,14 +43,12 @@ jobs:
         if: steps.check.outputs.is_bump == 'true'
         run: |
           VERSION=$(node -p 'require("./package.json").version')
+
+          # Extract PR number from commit message, e.g. "Merge pull request #21 from ..."
+          PR_NUMBER=$(git log -1 --pretty=%B | grep -oE '#[0-9]+' | tr -d '#')
+
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-          gh api repos/${{ github.repository }}/dispatches \
-            --method POST \
-            --input - <<EOF
-            {
-              "event_type": "run-release-workflow",
-              "client_payload": {
-                "tag": "v$VERSION"
-              }
-            }
-            EOF
+
+          jq -n --arg tag "v$VERSION" --arg pr "$PR_NUMBER" \
+            '{event_type: "run-release-workflow", client_payload: {tag: $tag, pr: $pr}}' \
+          | gh api repos/${{ github.repository }}/dispatches --method POST --input -

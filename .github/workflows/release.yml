@@ -1,0 +1,89 @@
+name: GitHub Release
+description: Create a GitHub release when pushing a semantic versioned tag
+
+on:
+  repository_dispatch:
+    types: [run-release-workflow]
+
+jobs:
+  generate:
+    name: 🧪 Generate Release Metadata
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📥 Install Dependencies
+        run: npm ci
+
+      - name: 📝 Generate Changelog
+        run: |
+          npx standard-version --dry-run > RELEASE_NOTES.md
+          tail -n +3 CHANGELOG.md > CLEAN_CHANGELOG.md
+
+      - name: 📁 Upload Release Metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: |
+            RELEASE_NOTES.md
+            CLEAN_CHANGELOG.md
+
+  build:
+    name: 🛠 Build Release Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 💾 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📥 Install Dependencies
+        run: npm ci
+
+      - name: 🧱 Build Project
+        run: npm run build
+
+      - name: 📁 Upload Build Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: lib/
+
+  release:
+    name: 🚀 Publish GitHub Release
+    needs: [generate, build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          path: assets/
+
+      - name: 📦 Download Build Output
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+
+      - name: 🪪 Authenticate GitHub CLI
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: 🚀 Create GitHub Release with Notes and Assets
+        run: |
+          gh release create "${{ github.event.client_payload.tag }}" \
+            --title "Release ${{ github.event.client_payload.tag }}" \
+            --notes-file assets/RELEASE_NOTES.md \
+            dist/**

@@ -38,3 +38,12 @@ jobs:
           echo "Creating tag: v$VERSION"
           git tag "v$VERSION"
           git push origin "v$VERSION"
+
+      - name: 🚀 Trigger Release Workflow via Dispatch
+        if: steps.check.outputs.is_bump == 'true'
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+          gh api repos/${{ github.repository }}/dispatches \
+            -f event_type=run-release-workflow \
+            -f client_payload='{"tag": "v'"$VERSION"'"}'

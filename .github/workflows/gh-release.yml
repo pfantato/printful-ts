@@ -90,3 +90,7 @@ jobs:
             --title "Release ${{ github.event.client_payload.tag }}" \
             --notes-file assets/RELEASE_NOTES.md \
             dist/**
+
+  publish:
+    uses: ./.github/workflows/publish-npm.yml
+    secrets: inherit

@@ -46,5 +46,11 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           gh api repos/${{ github.repository }}/dispatches \
             --method POST \
-            --raw-field event_type=run-release-workflow \
-            --raw-field client_payload='{"tag": "v'"$VERSION"'"}'
+            --input - <<EOF
+            {
+              "event_type": "run-release-workflow",
+              "client_payload": {
+                "tag": "v$VERSION"
+              }
+            }
+            EOF

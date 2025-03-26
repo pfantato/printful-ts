@@ -7,11 +7,12 @@ on:
       - main
 
 jobs:
-  tag-version:
+  tag-release:
+    name: 🔖 Tag Merged Version
     runs-on: ubuntu-latest
 
     steps:
-      - name: 💾 Checkout main branch
+      - name: 💾 Checkout Repository
         uses: actions/checkout@v4
 
       - name: 🔧 Setup Git User
@@ -19,19 +20,21 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      - name: 🧪 Validate it's a version bump
+      - name: 🧪 Detect Version Bump Commit
         id: check
         run: |
-          LAST_COMMIT=$(git log -1 --pretty=%B)
-          echo "Last commit: $LAST_COMMIT"
-          if [[ "$LAST_COMMIT" != *"chore(release): bump version"* ]]; then
-            echo "❌ Not a version bump commit. Skipping tag."
-            echo "skip=true" >> $GITHUB_OUTPUT
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "Last commit message: $COMMIT_MSG"
+          if [[ "$COMMIT_MSG" == chore(release):* ]]; then
+            echo "is_bump=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_bump=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: 🔖 Create and Push Tag
-        if: steps.check.outputs.skip != 'true'
+      - name: 🔖 Create and Push Git Tag
+        if: steps.check.outputs.is_bump == 'true'
         run: |
           VERSION=$(node -p 'require("./package.json").version')
+          echo "Creating tag: v$VERSION"
           git tag "v$VERSION"
           git push origin "v$VERSION"

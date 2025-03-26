@@ -25,7 +25,7 @@ jobs:
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
           echo "Last commit message: $COMMIT_MSG"
-          if [[ "$COMMIT_MSG" == chore(release):* ]]; then
+          if [[ "$COMMIT_MSG" == "chore(release"* ]]; then
             echo "is_bump=true" >> $GITHUB_OUTPUT
           else
             echo "is_bump=false" >> $GITHUB_OUTPUT

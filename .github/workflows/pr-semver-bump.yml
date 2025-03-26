@@ -50,20 +50,36 @@ jobs:
       - name: 🚀 Run standard-version
         run: npx standard-version --release-as ${{ steps.version.outputs.type }} --skip.commit --skip.tag
 
-      - name: 🆕 Create Version Branch
+      - name: 🆕 Create Unique Release Branch
         id: version_branch
         run: |
           VERSION=$(node -p 'require("./package.json").version')
+          TS=$(date +%Y%m%dT%H%M)
+          BRANCH_NAME="release/v$VERSION-$TS"
+
+          # Save outputs
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "branch=release/v$VERSION" >> $GITHUB_OUTPUT
-          git checkout -B release/v$VERSION
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+          # Delete remote branch if it exists
+          git ls-remote --exit-code --heads origin "$BRANCH_NAME" && \
+            git push origin --delete "$BRANCH_NAME" || echo "No existing branch to delete"
+
+          git checkout -B "$BRANCH_NAME"
 
       - name: 💬 Commit and Force Push to Release Branch
         run: |
           git add package.json package-lock.json CHANGELOG.md
           git commit -m "chore(release): bump version [skip ci]"
           git fetch origin
-          git push --force-with-lease origin release/v${{ steps.version_branch.outputs.version }}
+          git push --force-with-lease origin ${{ steps.version_branch.outputs.branch }}
+
+      - name: 🧪 Debug Branch State
+        run: |
+          git log --oneline -n 3
+          echo "HEAD: $(git rev-parse HEAD)"
+          echo "Branch: $(git branch --show-current)"
+          git ls-remote origin "refs/heads/${{ steps.version_branch.outputs.branch }}"
 
       - name: 📬 Create Pull Request
         id: create-pr
@@ -80,7 +96,8 @@ jobs:
       - name: ℹ️ Log PR Status
         run: |
           if [[ "${{ steps.create-pr.outputs.pull-request-number }}" == "" ]]; then
-            echo "ℹ️ A pull request for this release already exists. Skipping auto-merge."
+            echo "⚠️ PR was not created. Possibly no changes or a logic error."
+            exit 1
           else
             echo "✅ Pull request #${{ steps.create-pr.outputs.pull-request-number }} created for version bump."
           fi

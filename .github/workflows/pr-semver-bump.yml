@@ -9,9 +9,8 @@ on:
 
 jobs:
   bump-version:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && !startsWith(github.event.pull_request.head.ref, 'release/v')
     runs-on: ubuntu-latest
-
     steps:
       - name: 💾 Checkout Repository
         uses: actions/checkout@v4
@@ -72,12 +71,21 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
           branch: ${{ steps.version_branch.outputs.branch }}
-          title: "chore(release): bump version to v${{ steps.version_branch.outputs.version }}"
+          title: 'chore(release): bump version to v${{ steps.version_branch.outputs.version }}'
           body: |
             This PR was automatically generated after merging a PR to `main`.
             It bumps the version using conventional commits via `standard-version`.
 
+      - name: ℹ️ Log PR Status
+        run: |
+          if [[ "${{ steps.create-pr.outputs.pull-request-number }}" == "" ]]; then
+            echo "ℹ️ A pull request for this release already exists. Skipping auto-merge."
+          else
+            echo "✅ Pull request #${{ steps.create-pr.outputs.pull-request-number }} created for version bump."
+          fi
+
       - name: ✅ Enable Auto-Merge for Bump PR
+        if: steps.create-pr.outputs.pull-request-number != ''
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

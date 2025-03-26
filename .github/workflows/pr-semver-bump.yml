@@ -9,7 +9,9 @@ on:
 
 jobs:
   bump-version:
-    if: github.event.pull_request.merged == true && !startsWith(github.event.pull_request.head.ref, 'release/v')
+    if: >
+      github.event.pull_request.merged == true &&
+      !startsWith(github.event.pull_request.head.ref, 'release/v')
     runs-on: ubuntu-latest
     steps:
       - name: 💾 Checkout Repository
@@ -19,6 +21,9 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
+      - name: 🪪 Authenticate GitHub CLI
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
       - name: 🏷️ Determine Version Bump Type from Labels
         id: version
@@ -55,57 +60,31 @@ jobs:
         run: |
           VERSION=$(node -p 'require("./package.json").version')
           TS=$(date +%Y%m%dT%H%M)
-          BRANCH_NAME="release/v$VERSION-$TS"
+          BRANCH="release/v$VERSION-$TS"
 
-          # Save outputs
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
 
-          # Delete remote branch if it exists
-          git ls-remote --exit-code --heads origin "$BRANCH_NAME" && \
-            git push origin --delete "$BRANCH_NAME" || echo "No existing branch to delete"
+          git checkout -b "$BRANCH"
 
-          git checkout -B "$BRANCH_NAME"
-
-      - name: 💬 Commit and Force Push to Release Branch
+      - name: 💬 Commit and Push Release Branch
         run: |
           git add package.json package-lock.json CHANGELOG.md
           git commit -m "chore(release): bump version [skip ci]"
           git fetch origin
-          git push --force-with-lease origin ${{ steps.version_branch.outputs.branch }}
+          git push -u origin ${{ steps.version_branch.outputs.branch }}
 
-      - name: 🧪 Debug Branch State
+      - name: 📬 Create Pull Request with GitHub CLI
         run: |
-          git log --oneline -n 3
-          echo "HEAD: $(git rev-parse HEAD)"
-          echo "Branch: $(git branch --show-current)"
-          git ls-remote origin "refs/heads/${{ steps.version_branch.outputs.branch }}"
+          gh auth setup-git
+          gh pr create \
+            --base main \
+            --head ${{ steps.version_branch.outputs.branch }} \
+            --title "chore(release): bump version to v${{ steps.version_branch.outputs.version }}" \
+            --body "This PR was auto-generated using standard-version."
 
-      - name: 📬 Create Pull Request
-        id: create-pr
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          branch: ${{ steps.version_branch.outputs.branch }}
-          title: 'chore(release): bump version to v${{ steps.version_branch.outputs.version }}'
-          body: |
-            This PR was automatically generated after merging a PR to `main`.
-            It bumps the version using conventional commits via `standard-version`.
-
-      - name: ℹ️ Log PR Status
+      - name: ✅ Enable Auto-Merge with GitHub CLI
         run: |
-          if [[ "${{ steps.create-pr.outputs.pull-request-number }}" == "" ]]; then
-            echo "⚠️ PR was not created. Possibly no changes or a logic error."
-            exit 1
-          else
-            echo "✅ Pull request #${{ steps.create-pr.outputs.pull-request-number }} created for version bump."
-          fi
-
-      - name: ✅ Enable Auto-Merge for Bump PR
-        if: steps.create-pr.outputs.pull-request-number != ''
-        uses: peter-evans/enable-pull-request-automerge@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
-          merge-method: squash
+          PR_URL=$(gh pr view --json url -q .url)
+          echo "ℹ️ Enabling auto-merge for PR: $PR_URL"
+          gh pr merge --auto --squash

@@ -75,16 +75,21 @@ jobs:
           git push -u origin ${{ steps.version_branch.outputs.branch }}
 
       - name: 📬 Create Pull Request with GitHub CLI
+        id: pr
         run: |
-          gh auth setup-git
-          gh pr create \
+          PR_URL=$(gh pr create \
             --base main \
             --head ${{ steps.version_branch.outputs.branch }} \
             --title "chore(release): bump version to v${{ steps.version_branch.outputs.version }}" \
-            --body "This PR was auto-generated using standard-version."
+            --body "This PR was auto-generated after merging to main.")
+          echo "url=$PR_URL" >> $GITHUB_OUTPUT
 
-      - name: ✅ Enable Auto-Merge with GitHub CLI
+      - name: 🧪 Trigger PR CI by Touching Title
         run: |
-          PR_URL=$(gh pr view --json url -q .url)
-          echo "ℹ️ Enabling auto-merge for PR: $PR_URL"
-          gh pr merge --auto --merge
+          PR_NUMBER=$(gh pr view ${{ steps.pr.outputs.url }} --json number -q .number)
+          echo "Touching PR title to trigger CI"
+          gh pr edit "$PR_NUMBER" --title "chore(release): bump version to v${{ steps.version_branch.outputs.version }}"
+
+      - name: ✅ Enable Auto-Merge
+        run: |
+          gh pr merge --auto --merge "${{ steps.pr.outputs.url }}"

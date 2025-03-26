@@ -87,4 +87,4 @@ jobs:
         run: |
           PR_URL=$(gh pr view --json url -q .url)
           echo "ℹ️ Enabling auto-merge for PR: $PR_URL"
-          gh pr merge --auto --squash
+          gh pr merge --auto --merge

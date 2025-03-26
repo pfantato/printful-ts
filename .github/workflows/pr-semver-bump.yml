@@ -38,6 +38,13 @@ jobs:
         with:
           node-version: 20
 
+      - name: 🔹 Cache Dependencies
+        id: node-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: 📥 Install Dependencies
         run: npm ci
 
@@ -50,13 +57,13 @@ jobs:
           VERSION=$(node -p 'require("./package.json").version')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "branch=release/v$VERSION" >> $GITHUB_OUTPUT
-          git checkout -b release/v$VERSION
+          git checkout -B release/v$VERSION
 
-      - name: 💬 Commit and Push to Release Branch
+      - name: 💬 Commit and Force Push to Release Branch
         run: |
           git add package.json package-lock.json CHANGELOG.md
           git commit -m "chore(release): bump version [skip ci]"
-          git push origin release/v${{ steps.version_branch.outputs.version }}
+          git push --force-with-lease origin release/v${{ steps.version_branch.outputs.version }}
 
       - name: 📬 Create Pull Request
         uses: peter-evans/create-pull-request@v5

@@ -89,7 +89,7 @@ jobs:
           gh release create "${{ github.event.client_payload.tag }}" \
             --title "Release ${{ github.event.client_payload.tag }}" \
             --notes-file notes/RELEASE_NOTES.md \
-            build/**
+            dist/**
 
       - name: 📦 Setup npm Authentication
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc

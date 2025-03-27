@@ -12,7 +12,7 @@
     { "type": "chore", "section": "🔧 Maintenance", "hidden": false },
     { "type": "revert", "section": "⏪ Reverts" }
   ],
-  "releaseCommitMessageFormat": "chore(release): bump version to {{currentTag}} [skip ci]",
+  "releaseCommitMessageFormat": "chore(release): bump version to {{currentTag}}",
   "skip": {
     "tag": false,
     "commit": false

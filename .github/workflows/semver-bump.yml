@@ -92,4 +92,4 @@ jobs:
 
       - name: ✅ Enable Auto-Merge
         run: |
-          gh pr merge --auto --merge "${{ steps.pr.outputs.url }}"
+          gh pr merge --auto --squash "${{ steps.pr.outputs.url }}"

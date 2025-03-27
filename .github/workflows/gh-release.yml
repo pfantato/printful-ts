@@ -88,7 +88,7 @@ jobs:
         run: |
           gh release create "${{ github.event.client_payload.tag }}" \
             --title "Release ${{ github.event.client_payload.tag }}" \
-            --notes-file notes/RELEASE_NOTES.md \
+            --notes-file assets/RELEASE_NOTES.md \
             dist/**
 
       - name: 📦 Setup npm Authentication
